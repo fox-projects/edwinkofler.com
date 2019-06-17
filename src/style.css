@@ -1,4 +1,9 @@
 body {
+<<<<<<< HEAD
   background-color: var(--oc-gray-1);
   color: var(--oc-orange-8);
 }
+=======
+  background-color: red;
+}
+>>>>>>> 0ff9b1e... fix: server not refreshing on .html file change
