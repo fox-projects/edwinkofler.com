@@ -31,6 +31,7 @@ module.exports = {
     ... dev ? [] : [ new CleanWebpackPlugin() ]
   ],
   devServer: {
-    watchContentBase: true
+    watchContentBase: true,
+    hot: true
   }
 }
