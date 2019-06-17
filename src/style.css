@@ -1,3 +1,4 @@
 body {
-  background-color: lightgoldenrodyellow;
+  background-color: var(--oc-gray-1);
+  color: var(--oc-orange-8);
 }
