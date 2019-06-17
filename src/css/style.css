@@ -1,3 +1,31 @@
-body {
-  background-color: red;
+@font-face {
+    font-family: 'proxima-nova';
+    src: url('/assets/proxima-nova-soft.woff2');
 }
+
+* {
+  padding: 0;
+  margin: 0;
+  border: none;
+  font-family: proxima-nova
+}
+
+main {
+  position: relative;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30vw;
+  min-height: 100px;
+  max-height: 200px;
+  background-color: lightgoldenrodyellow;
+}
+
+article {
+  height: 400px;
+  background-color: papayawhip;
+}
+
