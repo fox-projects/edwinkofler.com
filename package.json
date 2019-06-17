@@ -4,8 +4,8 @@
   "description": "My portfolio",
   "main": "index.js",
   "scripts": {
-    "serve": "cross-env NODE_ENV=development webpack-dev-server",
-    "build": "cross-env NODE_ENV=production webpack"
+    "serve": "gulp run serve",
+    "build": "gulp run build"
   },
   "repository": {
     "type": "git",
