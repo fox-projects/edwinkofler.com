@@ -20,6 +20,12 @@ async function htmlReload() {
     .pipe(dest('src/css'))
 }
 
+async function generalReload() {
+  watch(['src/**/*.svg'], { ignoreInitial: false }, async () => {
+    browserSync.reload()
+  })
+}
+
 // when src html files change, inject style tags and move to dist
 async function htmlInject() {
   watch('src/*.html', { ignoreInitial: false }, async () => {
@@ -54,4 +60,4 @@ async function fileCopy() {
   })
 }
 
-exports.serve = series(init, parallel(htmlReload, htmlInject, cssInject, fileCopy))
+exports.serve = series(init, parallel(htmlReload, generalReload, htmlInject, cssInject, fileCopy))
