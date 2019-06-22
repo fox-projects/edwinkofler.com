@@ -21,11 +21,6 @@ body {
   background-color: var(--oc-gray-0);
 }
 
-:root {
-  --project-height: 33vw;
-  --project-width: calc(var(--project-height) * 4 / 3);
-}
-
 header, footer {
   display: flex;
   justify-content: center;
@@ -36,7 +31,10 @@ header, footer {
   background-color: lightgoldenrodyellow;
 }
 
-main {
+.project-list {
+  --project-height: 33vw;
+  --project-width: calc(var(--project-height) * 4 / 3);
+
   position: relative;
   display: grid;
 }
@@ -50,7 +48,7 @@ main {
 
 
 @media(min-width: 900px) {
-  main {
+  .project-list {
     display: grid;
     grid-template-rows: repeat(3, calc(var(--project-height) * 2 / 3));
     padding-top: calc(var(--project-height) * 0 / 3);
@@ -120,21 +118,6 @@ main {
   100% {
     border-radius: 72% 28% 74% 26% / 39% 76% 24% 61%;
   }
-}
-
-
-/* to be removed */
-main {
-  /* background-color: lightblue; */
-  /* border: 1px solid olivedrab; */
-}
-
-.project:nth-child(odd) {
-  /* background-color: papayawhip; */
-}
-
-.project:nth-child(even) {
-  /* background-color: oldlace; */
 }
 
 h2 {
