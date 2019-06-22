@@ -46,6 +46,40 @@ header, footer {
   border: 1px solid midnightblue;
 }
 
+.card-wrapper {
+  --card-size: 0.9;
+  transition: transform 50ms ease-in-out;
+}
+
+.card-wrapper:hover {
+  --card-size: .95;
+  transform: scale(var(--card-size), var(--card-size)) rotateY(-30deg);
+  transition: transform 100ms ease-in-out;
+}
+.project:nth-child(odd) .card-wrapper {
+  transform: scale(var(--card-size), var(--card-size)) rotateY(-30deg);
+}
+
+.project:nth-child(even) .card-wrapper {
+  transform: scale(var(--card-size), var(--card-size)) rotateY(30deg);
+}
+
+.card-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.card {
+  height: 100%;
+  width: 100%;
+  /* transform: scale(1.5, 1.5); */
+}
+
+.card > section {
+  /* different margins for the appearance of near-pixel-perfecy */
+  margin: 2px 10px;
+}
+
 
 @media(min-width: 900px) {
   .project-list {
@@ -58,6 +92,8 @@ header, footer {
   .project {
     width: var(--project-width);
     height: var(--project-height);
+
+    perspective: 1750px;
   }
 
   .project:nth-child(odd) {
@@ -71,19 +107,19 @@ header, footer {
     z-index: -1;
     background: #FF0099;
     background-image: linear-gradient(45deg, #3023AE 0%, #FF0099 100%);
-    /* border-radius: 33% 67% 70% 30% / 73% 45% 55% 27%; */
+    border-radius: 33% 67% 70% 30% / 73% 45% 55% 27%;
     animation: organic-shape-move 10s ease-in-out 0s infinite alternate both running;
   }
 
-  .card {
-    --size: 90%;
-    --margin: 20px;
+  .card-wrapper {
+    /* --size: 90%;
+    --margin: 10px;
 
     position: absolute;
     top: calc((100% - var(--size)) / 2);
     left: calc((100% - var(--size)) / 2);
     width: var(--size);
-    height: var(--size);
+    height: var(--size); */
     z-index: 1;
 
     display: flex;
@@ -93,17 +129,6 @@ header, footer {
     background-color: var(--oc-gray-0);
     border: 1px solid var(--oc-gray-3);
     box-shadow: 2px 2px 10px var(--oc-gray-3);
-  }
-
-  .card section {
-    width: calc(100% - var(--margin));
-    height: calc(100% - var(--margin));
-    overflow: hidden;
-  }
-
-  .project:nth-child(even) .card {
-    perspective: 10000px;
-    transform: rotate3D(0, 0, 0, -30deg);
   }
 }
 
