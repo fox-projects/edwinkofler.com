@@ -41,7 +41,7 @@ main {
   display: grid;
 }
 
-main article {
+.project {
   position: relative;
   width: 100%;
   height: 300px; /* auto later */
@@ -57,12 +57,12 @@ main article {
     padding-bottom: calc(var(--project-height) * 0 / 3);
   }
 
-  main article {
+  .project {
     width: var(--project-width);
     height: var(--project-height);
   }
 
-  main article:nth-child(odd) {
+  .project:nth-child(odd) {
     justify-self: end;
   }
 
@@ -103,7 +103,7 @@ main article {
     overflow: hidden;
   }
 
-  main article:nth-child(even) .card {
+  .project:nth-child(even) .card {
     perspective: 10000px;
     transform: rotate3D(0, 0, 0, -30deg);
   }
@@ -129,11 +129,11 @@ main {
   /* border: 1px solid olivedrab; */
 }
 
-article:nth-child(odd) {
+.project:nth-child(odd) {
   /* background-color: papayawhip; */
 }
 
-article:nth-child(even) {
+.project:nth-child(even) {
   /* background-color: oldlace; */
 }
 
