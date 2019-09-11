@@ -1,4 +1,12 @@
-node_modules/
 dist/
 src/fonts
 proxima-nova-soft.woff2
+
+# ide
+.idea/
+.code/
+
+# other
+node_modules/
+*.log
+
