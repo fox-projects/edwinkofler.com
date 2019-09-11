@@ -19,12 +19,12 @@
   },
   "homepage": "https://github.com/eankeen/portfolio#readme",
   "devDependencies": {
-    "autoprefixer": "^9.6.0",
+    "autoprefixer": "^9.6.1",
     "browser-sync": "^2.26.7",
-    "del": "^4.1.1",
+    "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-copy": "^4.0.1",
-    "gulp-inject": "^5.0.2",
+    "gulp-inject": "^5.0.4",
     "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^8.0.0",
     "open-color": "^1.7.0"
