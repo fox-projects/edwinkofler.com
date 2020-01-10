@@ -1,0 +1,36 @@
+.animate {
+  animation: fade-in 0.15s ease-in-out var(--delay) 1 normal both running;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-animation-order='1'] {
+  --delay: .05s;
+}
+
+[data-animation-order='2'] {
+  --delay: .1s;
+}
+
+[data-animation-order='3'] {
+  --delay: .15s;
+}
+
+[data-animation-order='4'] {
+  --delay: .2s;
+}
+
+[data-animation-order='4'] {
+  --delay: .25s;
+}
+
