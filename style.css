@@ -114,13 +114,13 @@ header {
   max-width: var(--max-width);
 }
 
-.my-github, .my-twitter {
-  display: flex;
-  align-items: center;
-}
-
 .mys {
   display: flex;
+}
+
+.my {
+  display: flex;
+  align-items: center;
 }
 
 .my-github, .my-twitter {
