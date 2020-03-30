@@ -1,3 +1,5 @@
+dependencies:
+  esm: 3.2.25
 devDependencies:
   autoprefixer: 9.7.5
   browser-sync: 2.26.7
@@ -1115,6 +1117,12 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+  /esm/3.2.25:
+    dev: false
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==
   /esprima/4.0.1:
     dev: true
     engines:
@@ -4045,6 +4053,7 @@ specifiers:
   autoprefixer: ^9.7.5
   browser-sync: ^2.26.7
   del: ^5.1.0
+  esm: ^3.2.25
   gulp: ^4.0.2
   gulp-copy: ^4.0.1
   gulp-inject: ^5.0.5

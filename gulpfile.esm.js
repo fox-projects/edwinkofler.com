@@ -1,9 +1,11 @@
-let { dest, parallel, series, src, watch } = require('gulp')
-let plumber = require('gulp-plumber')
-let inject = require('gulp-inject')
-let postcss = require('gulp-postcss')
-let browserSync = require('browser-sync').create()
-let del = require('del');
+import { dest, parallel, series, src, watch } from 'gulp'
+import plumber from 'gulp-plumber'
+import inject from 'gulp-inject'
+import postcss from 'gulp-postcss'
+import browserSync from 'browser-sync'
+import del from 'del'
+
+browserSync.create()
 
 async function init() {
   del.sync(['dist/*', '!dist'])

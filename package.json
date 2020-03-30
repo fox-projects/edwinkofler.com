@@ -4,8 +4,8 @@
   "description": "My portfolio",
   "main": "index.js",
   "scripts": {
-    "serve": "gulp serve",
-    "build": "gulp build"
+    "serve": "gulp -r esm serve",
+    "build": "gulp -r esm build"
   },
   "repository": {
     "type": "git",
@@ -28,5 +28,8 @@
     "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^8.0.0",
     "open-color": "^1.7.0"
+  },
+  "dependencies": {
+    "esm": "^3.2.25"
   }
 }
