@@ -28,7 +28,7 @@
 
 p,
 em,
-a {
+a, strike {
   font-weight: var(--font-light);
 }
 
