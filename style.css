@@ -285,19 +285,8 @@ footer {
   margin: 10px 0;
 }
 
-media screen and (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   * {
-    transition: none;
-  }
-}
-
-@media (inverted-colors) {
-  img {
-    filter: invert(100%);
-  }
-
-  * {
-    text-shadow: none !important;
-    box-shadow: none !important;
+    transition-duration: 0s !important;
   }
 }
