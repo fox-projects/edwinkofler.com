@@ -242,6 +242,7 @@ footer {
 		transition-duration: 0s !important;
 	}
 }
+
 @media (max-width: 800px) {
 	.title > h1 {
 		font-size: 36px;
@@ -250,5 +251,17 @@ footer {
 
 	.title img {
 		width: 100px;
+	}
+}
+
+@media (max-width: 600px) {
+	.nav-wrap {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+
+	.links {
+		align-self: flex-end;
 	}
 }
