@@ -26,8 +26,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        run: "./build.js build"
+      - name: Build with build.js
+        run: "npm i && ./build.js build"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
