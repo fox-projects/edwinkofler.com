@@ -133,7 +133,7 @@ nav a {
 }
 
 /* page: index.html */
-.page-index main {
+.page-index {
 	display: flex;
 	flex-direction: column;
 }
