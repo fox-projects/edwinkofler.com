@@ -13,23 +13,29 @@
 	"author": "Edwin Kofler <edwin@kofler.dev> (https://edwinkofler.com/)",
 	"license": "MPL-2.0",
 	"nodemonConfig": {
-		"watch": "./build.js"
+		"watch": [
+			"./build.js",
+			"./build.config.js"
+		]
 	},
 	"dependencies": {
 		"@shikijs/markdown-it": "^1.9.0",
+		"browser-sync": "^3.0.2",
+		"chokidar": "^3.6.0",
 		"execa": "^9.3.0",
 		"handlebars": "^4.7.8",
 		"htmlparser2": "^9.1.0",
 		"katex": "^0.16.10",
 		"markdown-it": "^14.1.0",
 		"markdown-it-emoji": "^3.0.0",
+		"nodeman": "^1.1.2",
+		"nodemon": "^3.1.4",
+		"prettier": "^3.3.2",
 		"shiki": "^1.9.0",
 		"smol-toml": "^1.2.1",
 		"temporal-polyfill": "^0.2.5"
 	},
 	"devDependencies": {
-		"browser-sync": "^3.0.2",
-		"chokidar": "^3.6.0",
-		"nodemon": "^3.1.4"
+		"dedent": "^1.5.3"
 	}
 }

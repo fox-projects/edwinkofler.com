@@ -11,6 +11,12 @@ importers:
       '@shikijs/markdown-it':
         specifier: ^1.9.0
         version: 1.9.1
+      browser-sync:
+        specifier: ^3.0.2
+        version: 3.0.2
+      chokidar:
+        specifier: ^3.6.0
+        version: 3.6.0
       execa:
         specifier: ^9.3.0
         version: 9.3.0
@@ -29,6 +35,15 @@ importers:
       markdown-it-emoji:
         specifier: ^3.0.0
         version: 3.0.0
+      nodeman:
+        specifier: ^1.1.2
+        version: 1.1.2
+      nodemon:
+        specifier: ^3.1.4
+        version: 3.1.4
+      prettier:
+        specifier: ^3.3.2
+        version: 3.3.2
       shiki:
         specifier: ^1.9.0
         version: 1.9.1
@@ -39,15 +54,9 @@ importers:
         specifier: ^0.2.5
         version: 0.2.5
     devDependencies:
-      browser-sync:
-        specifier: ^3.0.2
-        version: 3.0.2
-      chokidar:
-        specifier: ^3.6.0
-        version: 3.6.0
-      nodemon:
-        specifier: ^3.1.4
-        version: 3.1.4
+      dedent:
+        specifier: ^1.5.3
+        version: 1.5.3
 
 packages:
 
@@ -164,6 +173,10 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
+  colors@1.4.0:
+    resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
+    engines: {node: '>=0.1.90'}
+
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
@@ -209,6 +222,14 @@ packages:
       supports-color: '*'
     peerDependenciesMeta:
       supports-color:
+        optional: true
+
+  dedent@1.5.3:
+    resolution: {integrity: sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==}
+    peerDependencies:
+      babel-plugin-macros: ^3.1.0
+    peerDependenciesMeta:
+      babel-plugin-macros:
         optional: true
 
   depd@1.1.2:
@@ -497,6 +518,10 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
+  nodeman@1.1.2:
+    resolution: {integrity: sha512-RpRpDnMI4TN/EPX6+my7f02585I14AQO8YrHTkO1aTiC65+sMa5G3NwQplN6kwue1njxWiaSz2UwCnDbwkLgeQ==}
+    hasBin: true
+
   nodemon@3.1.4:
     resolution: {integrity: sha512-wjPBbFhtpJwmIeY2yP7QF+UKzPfltVGtfce1g/bB15/8vCGZj8uxD62b/b9M9/WVgme0NZudpownKN+c0plXlQ==}
     engines: {node: '>=10'}
@@ -545,6 +570,11 @@ packages:
   portscanner@2.2.0:
     resolution: {integrity: sha512-IFroCz/59Lqa2uBvzK3bKDbDDIEaAY8XJ1jFxcLWTqosrsc32//P4VuSB2vZXoHiHqOmx8B5L5hnKOxL/7FlPw==}
     engines: {node: '>=0.4', npm: '>=1.0.0'}
+
+  prettier@3.3.2:
+    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   pretty-ms@9.0.0:
     resolution: {integrity: sha512-E9e9HJ9R9NasGOgPaPE8VMeiPKAyWR5jcFpNnwIejslIhWqdqOrb2wShBsncMPUb+BcCd2OPYfh7p2W6oemTng==}
@@ -946,6 +976,8 @@ snapshots:
 
   color-name@1.1.4: {}
 
+  colors@1.4.0: {}
+
   commander@2.20.3: {}
 
   commander@8.3.0: {}
@@ -985,6 +1017,8 @@ snapshots:
       ms: 2.1.2
     optionalDependencies:
       supports-color: 5.5.0
+
+  dedent@1.5.3: {}
 
   depd@1.1.2: {}
 
@@ -1273,6 +1307,10 @@ snapshots:
 
   neo-async@2.6.2: {}
 
+  nodeman@1.1.2:
+    dependencies:
+      colors: 1.4.0
+
   nodemon@3.1.4:
     dependencies:
       chokidar: 3.6.0
@@ -1316,6 +1354,8 @@ snapshots:
     dependencies:
       async: 2.6.4
       is-number-like: 1.0.8
+
+  prettier@3.3.2: {}
 
   pretty-ms@9.0.0:
     dependencies:

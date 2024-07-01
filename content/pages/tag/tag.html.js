@@ -1,6 +1,4 @@
-
-export const isDynamic = true
-export async function GenerateSlugs(Config, Helpers) {
+export async function GenerateSlugMapping(Config, Helpers) {
 	const posts = await Helpers.getPosts(Config)
 
 	let tags = {}
@@ -23,7 +21,7 @@ export async function GenerateSlugs(Config, Helpers) {
 	return tagsArr
 }
 
-export async function TemplateVariables(Config, Helpers, { slug, count }) {
+export async function GenerateTemplateVariables(Config, Helpers, { slug, count }) {
 	const posts = await Helpers.getPosts(Config)
 
 	let filteredPosts = []

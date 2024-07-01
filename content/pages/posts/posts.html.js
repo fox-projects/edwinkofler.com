@@ -1,4 +1,4 @@
-export async function TemplateVariables(Config, Helpers) {
+export async function GenerateTemplateVariables(Config, Helpers) {
 	const posts = await Helpers.getPosts(Config)
 
 	return {

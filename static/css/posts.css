@@ -1,0 +1,12 @@
+.post-entry h3 {
+	font-size: 20px;
+	font-weight: bold;
+	display: inline;
+}
+
+.post-entry h4 {
+	font-size: 17px;
+	margin-block-end: 16px;
+	color: var(--light-text-color);
+	font-weight: normal;
+}

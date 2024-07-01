@@ -4,12 +4,11 @@ Wedding myself to an external static site generator solution is a poor use of my
 
 ## Plans
 
-- Add `format` subcommand
-- Format the output HTML, CSS, etc.
-- Add async / improve performance
+- `build.config.js`
 - Only rebuild changed files watch mode
-- Some codebloks have different tabs vs spaces
+- Some codeblocks have different tabs vs spaces
 -`new` subcommand for making new templates
+- no default `target="_self"`
 
 ## Directory Structure
 
@@ -61,6 +60,5 @@ For now, `.html`, `xml`, and `.md` files are supported.
 
 ## JavaScript Customization
 
-- `isDynamic`
-- `GenerateSlugs()`
-- `TemplateVariables()`
+- `GenerateSlugMapping()`
+- `GenerateTemplateVariables()`
