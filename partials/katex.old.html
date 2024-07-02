@@ -12,9 +12,12 @@
 	crossorigin="anonymous"
 ></script>
 
-<script>
+<script defer>
 	function __initialize_katex() {
 		renderMathInElement(document.body, {
+			options: {
+				strict: false,
+			},
 			delimiters: [
 				{ left: '$$', right: '$$', display: true },
 				{ left: '$', right: '$', display: false },

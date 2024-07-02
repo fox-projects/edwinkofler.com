@@ -7,12 +7,12 @@ categories = []
 tags = []
 +++
 
-Similar to [Semantic Hotkeys](/posts/semantic-hotkeys), this posts analyses how mouse controls are used in complex applications.
+Similar to [Semantic Hotkeys](/post/semantic-hotkeys), this posts analyses how mouse controls are used in complex applications.
 
 While working on [Quazipanacea](https://github.com/quazipanacea), I found myself implementing controls for a graph:
 
 ![graph](./quazipanacea.png)
-![ubuntu booting up without cloud init2](/posts/cloud-init/q.png)
+![ubuntu booting up without cloud init2](/post/cloud-init/q.png)
 
 To make intuitive controls to pan, select multiple nodes, draw edges and more, I decided to document how other complex software handles multi-modal controls.
 

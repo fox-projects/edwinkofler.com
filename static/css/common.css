@@ -26,6 +26,7 @@ body {
 main {
 	padding: 15px 30px 0 30px;
 	max-width: 900px;
+	word-wrap: break-word;
 }
 
 p,

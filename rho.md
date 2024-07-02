@@ -4,11 +4,15 @@ Wedding myself to an external static site generator solution is a poor use of my
 
 ## Plans
 
-- https://squirrelly.js.org
-- Only rebuild changed files watch mode
-- Some codeblocks have different tabs vs spaces
--`new` subcommand for making new templates
-- no default `target="_self"`
+- `new` subcommand for making new templates
+- Don't rebuild everything every single time
+- Build by entrypoints
+- Dependency: Replace `handlebars` with `squirrelly`
+- Dependency: Replace `browser-sync` with custom solution
+
+## Concepts
+
+### Leafs
 
 ## Directory Structure
 

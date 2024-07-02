@@ -7,7 +7,7 @@ categories = ["math"]
 tags = ["pascal's triangle", "fibonacci"]
 +++
 
-If you're not familiar with Pascal's Triangle, see [part 1](/posts/fibonacci-equation-using-pascals-triangle-part-1/).
+If you're not familiar with Pascal's Triangle, see [part 1](/post/fibonacci-equation-using-pascals-triangle-part-1/).
 
 # Finding a Formula
 

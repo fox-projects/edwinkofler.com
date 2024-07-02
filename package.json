@@ -5,7 +5,8 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"dev": "nodemon -- ./rho.js serve",
+		"dev": "pnpx nodemon -- ./rho.js serve",
+		"test": "node ./rho.test.js",
 		"build": "./rho.js build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules"
 	},
@@ -22,14 +23,13 @@
 		"@shikijs/markdown-it": "^1.9.0",
 		"browser-sync": "^3.0.2",
 		"chokidar": "^3.6.0",
+		"consola": "^3.2.3",
 		"execa": "^9.3.0",
 		"handlebars": "^4.7.8",
 		"htmlparser2": "^9.1.0",
 		"katex": "^0.16.10",
 		"markdown-it": "^14.1.0",
 		"markdown-it-emoji": "^3.0.0",
-		"nodeman": "^1.1.2",
-		"nodemon": "^3.1.4",
 		"prettier": "^3.3.2",
 		"shiki": "^1.9.0",
 		"smol-toml": "^1.2.1",
@@ -37,5 +37,6 @@
 	},
 	"devDependencies": {
 		"dedent": "^1.5.3"
-	}
+	},
+	"packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
 }

@@ -26,8 +26,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Build with build.js
-        run: "npm i && ./build.js build"
+      - name: Build with rho.js
+        run: "npm i && ./rho.js build"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

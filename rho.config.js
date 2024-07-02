@@ -53,6 +53,8 @@ export const ctx = Object.freeze({
 				return `<link rel="stylesheet" href="/css/links.css" />`
 			} else if (inputUri === 'pages/posts/posts.html') {
 				return `<link rel="stylesheet" href="/css/posts.css" />`
+			} else if (inputUri.startsWith('post/')) {
+				return `<link rel="stylesheet" href="/css/post.css" />`
 			} else {
 				return ''
 			}

@@ -34,7 +34,7 @@ To get KaTex to work, you must import their JavaScript and CSS files. We're goin
 	crossorigin="anonymous"
 />
 
-<!-- JS Fle -->
+<!-- JS File -->
 <script
 	defer
 	src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js"

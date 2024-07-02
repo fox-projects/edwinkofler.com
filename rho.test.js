@@ -1,13 +1,13 @@
-import { test, suite, before, beforeEach, afterEach } from 'node:test'
+import { test, suite, mock, before, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+
 import { execa } from 'execa'
 import dedent from 'dedent'
 
-import { cliBuild } from './rho.js'
+import { cliBuild, consola } from './rho.js'
 
-process.env.TEST = 'true'
 const Filename = new URL(import.meta.url).pathname
 const Dirname = path.dirname(Filename)
 const TestDataDir = path.join(Dirname, './testdata')
@@ -44,6 +44,7 @@ const Ctx = Object.freeze({
 })
 
 before(async () => {
+	consola.mockTypes(() => mock.fn())
 	await fs.rm(TestDataDir, { recursive: true, force: true })
 })
 
@@ -60,7 +61,7 @@ afterEach(async () => {
 suite('markdown tests', async () => {
 	test('test/index.md', async () => {
 		await writeFiles({
-			'./content/posts/test/index.md': dedent`
+			'./content/post/test/index.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -71,13 +72,13 @@ suite('markdown tests', async () => {
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/posts/test/index.html': /<p>water/
+			'./build/post/test/index.html': /<p>water/
 		})
 	})
 
 	test('test/index.md with slug', async () => {
 		await writeFiles({
-			'./content/posts/test/index.md': dedent`
+			'./content/post/test/index.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -89,13 +90,13 @@ suite('markdown tests', async () => {
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/posts/my-slug/index.html': /<p>water/
+			'./build/post/my-slug/index.html': /<p>water/
 		})
 	})
 
 	test('test/test.md', async () => {
 		await writeFiles({
-			'./content/posts/test/test.md': dedent`
+			'./content/post/test/test.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -106,13 +107,13 @@ suite('markdown tests', async () => {
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/posts/test/index.html': /<p>Bravo/
+			'./build/post/test/index.html': /<p>Bravo/
 		})
 	})
 
 	test('test/test.md with slug', async () => {
 		await writeFiles({
-			'./content/posts/test/test.md': dedent`
+			'./content/post/test/test.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -124,7 +125,7 @@ suite('markdown tests', async () => {
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/posts/my-slug/index.html': /<p>Bravo/
+			'./build/post/my-slug/index.html': /<p>Bravo/
 		})
 	})
 })
@@ -132,19 +133,19 @@ suite('markdown tests', async () => {
 suite('html tests', async () => {
 	test('test/index.html', async () => {
 		await writeFiles({
-			'./content/posts/test/index.html': dedent`
+			'./content/post/test/index.html': dedent`
 					<p>water</p>`
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/posts/test/index.html': /<p>water/
+			'./build/post/test/index.html': /<p>water/
 		})
 	})
 
 	// test('test/index.html with slug', async () => {
 	// 	await writeFiles({
-	// 		'./content/posts/test/index.html': dedent`
+	// 		'./content/post/test/index.html': dedent`
 	// 				+++
 	// 				title = 'Title'
 	// 				author = 'First Last'
@@ -156,25 +157,25 @@ suite('html tests', async () => {
 	// 	await cliBuild(Ctx)
 
 	// 	await assertFiles({
-	// 		'./build/posts/my-slug/index.html': /<p>water/
+	// 		'./build/post/my-slug/index.html': /<p>water/
 	// 	})
 	// })
 
 	test('test/test.html', async () => {
 		await writeFiles({
-			'./content/posts/test/test.html': dedent`
+			'./content/post/test/test.html': dedent`
 					<p>Bravo</p>`
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/posts/test/index.html': /<p>Bravo/
+			'./build/post/test/index.html': /<p>Bravo/
 		})
 	})
 
 	// test('test/test.html with slug', async () => {
 	// 	await writeFiles({
-	// 		'./content/posts/test/test.html': dedent`
+	// 		'./content/post/test/test.html': dedent`
 	// 				+++
 	// 				title = 'Title'
 	// 				author = 'First Last'
@@ -186,7 +187,7 @@ suite('html tests', async () => {
 	// 	await cliBuild(Ctx)
 
 	// 	await assertFiles({
-	// 		'./build/posts/my-slug/index.html': /<p>Bravo/
+	// 		'./build/post/my-slug/index.html': /<p>Bravo/
 	// 	})
 	// })
 })
