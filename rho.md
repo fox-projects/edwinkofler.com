@@ -1,10 +1,10 @@
-# Documentation for `build.js`
+# Documentation for `rho.js`
 
-Wedding myself to an external static site generator solution is a poor use of my time and limits the degree to which I can customize my website. `build.js` solves that because it only does what I need, exactly how I want it, and its customization is not constrained by the (different) APIs available to a "plugin".
+Wedding myself to an external static site generator solution is a poor use of my time and limits the degree to which I can customize my website. `rho.js` solves that because it only does what I need, exactly how I want it, and its customization is not constrained by the (different) APIs available to a "plugin".
 
 ## Plans
 
-- `build.config.js`
+- https://squirrelly.js.org
 - Only rebuild changed files watch mode
 - Some codeblocks have different tabs vs spaces
 -`new` subcommand for making new templates

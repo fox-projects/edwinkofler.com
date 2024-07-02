@@ -17,7 +17,7 @@ import katex from 'katex'
 import browserSync from 'browser-sync'
 import chokidar from 'chokidar'
 
-import { ctx as _ctx } from './build.config.js'
+import { ctx as _ctx } from './rho.config.js'
 
 /**
  * @typedef {'pages' | 'posts' | 'thoughts' | 'til'} ContentForm

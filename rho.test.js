@@ -5,7 +5,7 @@ import path from 'node:path'
 import { execa } from 'execa'
 import dedent from 'dedent'
 
-import { cliBuild } from './build.js'
+import { cliBuild } from './rho.js'
 
 process.env.TEST = 'true'
 const Filename = new URL(import.meta.url).pathname
@@ -18,7 +18,7 @@ const Ctx = Object.freeze({
 		verbose: false,
 	},
 	config: {
-		buildJsFile: path.join(Dirname, 'build.js'),
+		buildJsFile: path.join(Dirname, 'rho.js'),
 		contentDir: path.join(TestDataDir, 'content'),
 		layoutDir: path.join(TestDataDir, 'layouts'),
 		partialsDir: path.join(TestDataDir, 'partials'),

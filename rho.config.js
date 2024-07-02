@@ -7,8 +7,8 @@ import TOML from 'smol-toml'
 const Filename = new URL(import.meta.url).pathname
 const Dirname = path.dirname(Filename)
 
-import { MarkdownItInstance } from './build.js'
-import { validateFrontmatter } from './build.js'
+import { MarkdownItInstance } from './rho.js'
+import { validateFrontmatter } from './rho.js'
 
 export const ctx = Object.freeze({
 	options: {
@@ -16,7 +16,7 @@ export const ctx = Object.freeze({
 		verbose: false,
 	},
 	config: {
-		buildJsFile: path.join(Dirname, 'build.js'),
+		buildJsFile: path.join(Dirname, 'rho.js'),
 		contentDir: path.join(Dirname, 'content'),
 		layoutDir: path.join(Dirname, 'layouts'),
 		partialsDir: path.join(Dirname, 'partials'),

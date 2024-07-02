@@ -5,8 +5,8 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"dev": "nodemon -- ./build.js serve",
-		"build": "./build.js build",
+		"dev": "nodemon -- ./rho.js serve",
+		"build": "./rho.js build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules"
 	},
 	"keywords": [],
@@ -14,8 +14,8 @@
 	"license": "MPL-2.0",
 	"nodemonConfig": {
 		"watch": [
-			"./build.js",
-			"./build.config.js"
+			"./rho.js",
+			"./rho.config.js"
 		]
 	},
 	"dependencies": {
