@@ -1,9 +1,9 @@
-<main>
+<main class="text-content">
 	<h1>Posts</h1>
 	<div>
 		{{#each posts}}
 		<div class="post-entry">
-			<a href="/post/{{this.slug}}"><h3>{{this.frontmatter.title}}</h3></a>
+			<a href="/posts/{{this.slug}}"><h3>{{this.frontmatter.title}}</h3></a>
 			<h4>{{this.dateNice}}</h4>
 		</div>
 		{{/each}}

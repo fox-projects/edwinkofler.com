@@ -9,6 +9,7 @@ Wedding myself to an external static site generator solution is a poor use of my
 - Build by entrypoints
 - Dependency: Replace `handlebars` with `squirrelly`
 - Dependency: Replace `browser-sync` with custom solution
+- Linter to always ensure traling slash for local URLs
 
 ## Concepts
 

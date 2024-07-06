@@ -7,6 +7,6 @@ export async function GenerateTemplateVariables(Config, Helpers) {
 	})
 
 	return {
-		posts
+		posts,
 	}
 }
