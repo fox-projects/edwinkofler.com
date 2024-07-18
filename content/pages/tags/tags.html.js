@@ -13,6 +13,6 @@ export async function GenerateTemplateVariables(Config, Helpers) {
 	}
 
 	return {
-		tags
+		tags,
 	}
 }

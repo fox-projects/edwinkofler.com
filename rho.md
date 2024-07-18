@@ -1,15 +1,13 @@
 # Documentation for `rho.js`
 
-Wedding myself to an external static site generator solution is a poor use of my time and limits the degree to which I can customize my website. `rho.js` solves that because it only does what I need, exactly how I want it, and its customization is not constrained by the (different) APIs available to a "plugin".
+Wedding myself to a third-party static site generator solution limits the degree to which I can customize my website. `rho.js` solves that because I wrote it.
 
 ## Plans
 
 - `new` subcommand for making new templates
-- Don't rebuild everything every single time
-- Build by entrypoints
-- Dependency: Replace `handlebars` with `squirrelly`
+- Dependency: Replace `handlebars` with `liquidjs`
 - Dependency: Replace `browser-sync` with custom solution
-- Linter to always ensure traling slash for local URLs
+- Linter to always ensure trailing slash for local URLs
 
 ## Concepts
 
@@ -58,6 +56,17 @@ Pages and posts (like the aforementioned `/pages/about` and `posts/2023/oppenhei
 The directory must have a "content file" with the same name as the directory name (ex. `/pages/about/about.md` or `/pages/about/about.html`). A JavaScript file with the same name (ex. `/pages/about/about.js`) is treated specially; exporting functions allows for customizing behavior.
 
 All other files are copied over, unprocessed.
+
+### Page URI Processing Examples
+
+Here are how various assets are handled.
+
+- `/pages/about/about.md` -> `/about/index.html`
+- `/pages/about/about.html` -> `/about/index.html`
+- `/pages/index.html` -> `/index.html`
+- `/pages/index.html/index.html` -> `/index.html`
+- `/pages/index.xml/index.xml` -> `/index.html`
+- `/pages/about/about.css` -> `/about/about.css` (not `.html`, `.md`)
 
 ## Supported Formats
 

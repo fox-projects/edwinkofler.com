@@ -12,15 +12,22 @@ export const ctx = Object.freeze({
 	options: {
 		clean: false,
 		verbose: false,
+		noCache: false,
 	},
 	config: {
+		rootDir: Dirname,
 		buildJsFile: path.join(Dirname, 'rho.js'),
+		cacheFile: path.join(Dirname, '.cache/cache.json'),
 		contentDir: path.join(Dirname, 'content'),
 		layoutDir: path.join(Dirname, 'layouts'),
 		partialsDir: path.join(Dirname, 'partials'),
 		staticDir: path.join(Dirname, 'static'),
 		outputDir: path.join(Dirname, 'build'),
 		transformOutputUri(/** @type {string} */ uri) {
+			if (uri.startsWith('content/')) {
+				uri = uri.slice('content/'.length)
+			}
+
 			if (uri.startsWith('pages/')) {
 				uri = uri.slice('pages'.length)
 			} else if (uri.startsWith('posts/')) {
@@ -77,19 +84,19 @@ export const ctx = Object.freeze({
 	},
 	handlebarsHelpers: {
 		insertStyleTag(/** @type {string} */ inputUri) {
-			if (inputUri === 'pages/index.html') {
-				return `<link rel="stylesheet" href="/css/home.css" />`
-			} else if (inputUri === 'pages/links/links.html') {
-				return `<link rel="stylesheet" href="/css/links.css" />`
-			} else if (inputUri === 'pages/posts/posts.html') {
-				return `<link rel="stylesheet" href="/css/posts.css" />`
+			if (inputUri === 'content/pages/index.html/index.html') {
+				return `<link rel="stylesheet" href="/index.css" />`
+			} else if (inputUri === 'content/pages/links/links.html') {
+				return `<link rel="stylesheet" href="/links/links.css" />`
+			} else if (inputUri === 'content/pages/posts/posts.html') {
+				return `<link rel="stylesheet" href="/posts/posts.css" />`
 			} else {
 				return ''
 			}
 		},
 	},
 	helpers: {
-		getPosts: (...args) => helperGetPosts.call(null, ctx, ...args),
+		getPosts: (...args) => helperGetPosts.call(undefined, ctx, ...args),
 	},
 })
 
