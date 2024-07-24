@@ -9,12 +9,20 @@ const Dirname = path.dirname(Filename)
 import { MarkdownItInstance } from './rho.js'
 
 export const ctx = Object.freeze({
-	options: {
-		clean: false,
-		verbose: false,
-		noCache: false,
+	singletons: {
+		handlebars: /** @type {typeof import('handlebars')} */ (undefined),
 	},
-	config: {
+	defaults: /** @type {const} */ ({
+		title: 'Edwin Kofler',
+		layout: 'default.hbs',
+	}),
+	// These are set in `rho.js`.
+	options: {
+		clean: /** @type {boolean} */ (undefined),
+		verbose: /** @type {boolean} */ (undefined),
+		noCache: /** @type {boolean} */ (undefined),
+	},
+	config: /** @type {const} */ ({
 		rootDir: Dirname,
 		buildJsFile: path.join(Dirname, 'rho.js'),
 		cacheFile: path.join(Dirname, '.cache/cache.json'),
@@ -40,17 +48,15 @@ export const ctx = Object.freeze({
 
 			return uri
 		},
-		async getLayoutContent(
+		async getLayout(
 			/** @type {string} */ inputUri,
 			/** @type {ContentForm} */ contentForm,
 		) {
 			if (contentForm === 'posts') {
-				const p = path.join(ctx.config.layoutDir, 'post.hbs')
-				return await fs.readFile(p, { encoding: 'utf-8' })
+				return 'post.hbs'
 			}
 
-			const p = path.join(ctx.config.layoutDir, 'default.hbs')
-			return await fs.readFile(p, { encoding: 'utf-8' })
+			return null
 		},
 		validateFrontmatter(
 			/** @type {string} */ inputFile,
@@ -81,8 +87,8 @@ export const ctx = Object.freeze({
 
 			return /** @type {Frontmatter} */ (frontmatter)
 		},
-	},
-	handlebarsHelpers: {
+	}),
+	handlebarsHelpers: /** @type {const} */ ({
 		insertStyleTag(/** @type {string} */ inputUri) {
 			if (inputUri === 'content/pages/index.html/index.html') {
 				return `<link rel="stylesheet" href="/index.css" />`
@@ -94,10 +100,10 @@ export const ctx = Object.freeze({
 				return ''
 			}
 		},
-	},
-	helpers: {
+	}),
+	helpers: /** @type {const} */ ({
 		getPosts: (...args) => helperGetPosts.call(undefined, ctx, ...args),
-	},
+	}),
 })
 
 async function helperGetPosts(/** @type {Ctx} */ ctx) {

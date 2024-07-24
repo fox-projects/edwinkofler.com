@@ -15,6 +15,10 @@
 	--font-light: 300;
 }
 
+html {
+	height: 100%;
+}
+
 body {
 	font-family: 'Geologica', sans-serif;
 	font-weight: 200;
@@ -24,6 +28,7 @@ body {
 	line-height: 170%;
 	display: grid;
 	grid-template-columns: 250px 4fr;
+	height: 100%;
 }
 
 main {
@@ -55,6 +60,7 @@ hr {
 		2px 2px 7px 2px #dee2e6,
 		4px 4px 5px 6px #f1f3f5,
 		7px 7px 10px 6px #f8f9fa;
+	height: 100%;
 }
 
 .header .profile-picture {

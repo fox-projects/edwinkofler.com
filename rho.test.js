@@ -27,8 +27,11 @@ const Ctx = Object.freeze({
 		transformOutputUri(/** @type {string} */ uri) {
 			return uri
 		},
-		getLayoutContent(/** @type {Record<PropertyKey, unknown>} */ frontmatter, /** @type {ContentForm} */ contentForm) {
-			return `<!DOCTYPE html>
+		getLayout(
+			/** @type {Record<PropertyKey, unknown>} */ frontmatter,
+			/** @type {ContentForm} */ contentForm,
+		) {
+			return Buffer.from(`<!DOCTYPE html>
 	<html>
 		<head>
 			<meta charset="UTF-8">
@@ -38,9 +41,9 @@ const Ctx = Object.freeze({
 		{{__body}}
 		</body>
 	</html>
-	`
-		}
-	}
+	`)
+		},
+	},
 })
 
 before(async () => {
@@ -67,12 +70,12 @@ suite('markdown tests', async () => {
 					author = 'First Last'
 					date = 2000-01-01
 					+++
-					water`
+					water`,
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>water/
+			'./build/post/test/index.html': /<p>water/,
 		})
 	})
 
@@ -85,12 +88,12 @@ suite('markdown tests', async () => {
 					date = 2000-01-01
 					slug = 'my-slug'
 					+++
-					water`
+					water`,
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/my-slug/index.html': /<p>water/
+			'./build/post/my-slug/index.html': /<p>water/,
 		})
 	})
 
@@ -102,12 +105,12 @@ suite('markdown tests', async () => {
 					author = 'First Last'
 					date = 2000-01-01
 					+++
-					Bravo`
+					Bravo`,
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>Bravo/
+			'./build/post/test/index.html': /<p>Bravo/,
 		})
 	})
 
@@ -120,12 +123,12 @@ suite('markdown tests', async () => {
 					date = 2000-01-01
 					slug = 'my-slug'
 					+++
-					Bravo`
+					Bravo`,
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/my-slug/index.html': /<p>Bravo/
+			'./build/post/my-slug/index.html': /<p>Bravo/,
 		})
 	})
 })
@@ -134,12 +137,12 @@ suite('html tests', async () => {
 	test('test/index.html', async () => {
 		await writeFiles({
 			'./content/post/test/index.html': dedent`
-					<p>water</p>`
+					<p>water</p>`,
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>water/
+			'./build/post/test/index.html': /<p>water/,
 		})
 	})
 
@@ -164,12 +167,12 @@ suite('html tests', async () => {
 	test('test/test.html', async () => {
 		await writeFiles({
 			'./content/post/test/test.html': dedent`
-					<p>Bravo</p>`
+					<p>Bravo</p>`,
 		})
 		await cliBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>Bravo/
+			'./build/post/test/index.html': /<p>Bravo/,
 		})
 	})
 
@@ -196,9 +199,7 @@ async function debugTestDir() {
 	console.log('Entering debugging shell...')
 	try {
 		await execa('bash', { stdio: 'inherit' })
-	} catch {
-
-	}
+	} catch {}
 }
 
 async function writeFiles(/** @type {Record<string, string>} */ fileObject) {
@@ -227,7 +228,6 @@ async function assertFiles(/** @type {Record<string, string>} */ assertObject) {
 					throw err
 				}
 			}
-
 
 			const content = await fs.readFile(filename, 'utf8')
 

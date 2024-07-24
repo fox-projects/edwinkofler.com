@@ -5,6 +5,7 @@ Wedding myself to a third-party static site generator solution limits the degree
 ## Plans
 
 - `new` subcommand for making new templates
+- Have option to run via dev server (better than `browser-sync`, more options?)
 - Dependency: Replace `handlebars` with `liquidjs`
 - Dependency: Replace `browser-sync` with custom solution
 - Linter to always ensure trailing slash for local URLs
@@ -57,22 +58,43 @@ The directory must have a "content file" with the same name as the directory nam
 
 All other files are copied over, unprocessed.
 
-### Page URI Processing Examples
+### Content Handling
 
-Here are how various assets are handled.
+There are three types of content files:
+
+1. **Entrypoint files**
+
+These are treated specially.
+
+3. **Non-entrypoint files**
+
+These are simply copied over.
+
+4. **Rho files**
+
+Contains custom logic; not copied over. End in `.rho.js`.
+
+#### Entrypoint File Transformations
+
+If a file (minus its extension) has the same name as it's parent directory, it's name is changed to `index`. This makes keeping track of files in editors easier:
 
 - `/pages/about/about.md` -> `/about/index.html`
-- `/pages/about/about.html` -> `/about/index.html`
-- `/pages/index.html` -> `/index.html`
-- `/pages/index.html/index.html` -> `/index.html`
-- `/pages/index.xml/index.xml` -> `/index.html`
-- `/pages/about/about.css` -> `/about/about.css` (not `.html`, `.md`)
 
-## Supported Formats
+If a file has the same name as it's parent directory (and has a dot), the parent directory is removed. This makes it easy to group logic associated with a particular non-directory route:
+
+- `/pages/index.html/index.html` -> `/index.html`
+
+All other files are copied verbatim:
+
+- `/pages/index.html` -> `/index.html`
+
+#### Entrypoint File Formats
 
 For now, `.html`, `xml`, and `.md` files are supported.
 
 ## JavaScript Customization
 
+- `Meta()`
+- `Header()`
 - `GenerateSlugMapping()`
 - `GenerateTemplateVariables()`
