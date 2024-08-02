@@ -18,6 +18,7 @@ export const ctx = Object.freeze({
 	}),
 	// These are set in `rho.js`.
 	options: {
+		command: /** @type {import('./rho.js').Subcommands} */ (undefined),
 		clean: /** @type {boolean} */ (undefined),
 		verbose: /** @type {boolean} */ (undefined),
 		noCache: /** @type {boolean} */ (undefined),
@@ -90,6 +91,7 @@ export const ctx = Object.freeze({
 	}),
 	handlebarsHelpers: /** @type {const} */ ({
 		insertStyleTag(/** @type {string} */ inputUri) {
+			console.log(inputUri)
 			if (inputUri === 'content/pages/index.html/index.html') {
 				return `<link rel="stylesheet" href="/index.css" />`
 			} else if (inputUri === 'content/pages/links/links.html') {

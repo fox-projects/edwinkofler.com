@@ -1,6 +1,6 @@
 # Documentation for `rho.js`
 
-Wedding myself to a third-party static site generator solution limits the degree to which I can customize my website. `rho.js` solves that because I wrote it.
+Wedding myself to a third-party static site generator solution limits the degree to which I can customize my website. `rho.js` solves that because it's my software.
 
 ## Plans
 
@@ -57,6 +57,10 @@ Pages and posts (like the aforementioned `/pages/about` and `posts/2023/oppenhei
 The directory must have a "content file" with the same name as the directory name (ex. `/pages/about/about.md` or `/pages/about/about.html`). A JavaScript file with the same name (ex. `/pages/about/about.js`) is treated specially; exporting functions allows for customizing behavior.
 
 All other files are copied over, unprocessed.
+
+### Layouts
+
+Pages can have a different layout.
 
 ### Content Handling
 

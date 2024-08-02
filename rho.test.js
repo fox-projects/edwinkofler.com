@@ -6,7 +6,7 @@ import path from 'node:path'
 import { execa } from 'execa'
 import dedent from 'dedent'
 
-import { cliBuild, consola } from './rho.js'
+import { commandBuild, consola } from './rho.js'
 
 const Filename = new URL(import.meta.url).pathname
 const Dirname = path.dirname(Filename)
@@ -31,17 +31,19 @@ const Ctx = Object.freeze({
 			/** @type {Record<PropertyKey, unknown>} */ frontmatter,
 			/** @type {ContentForm} */ contentForm,
 		) {
-			return Buffer.from(`<!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		</head>
-		<body>
-		{{__body}}
-		</body>
-	</html>
-	`)
+			return Buffer.from(
+				dedent`
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					</head>
+					<body>
+						{{__body}}
+					</body>
+					</html>`,
+			)
 		},
 	},
 })
@@ -72,7 +74,7 @@ suite('markdown tests', async () => {
 					+++
 					water`,
 		})
-		await cliBuild(Ctx)
+		await commandBuild(Ctx)
 
 		await assertFiles({
 			'./build/post/test/index.html': /<p>water/,
@@ -90,7 +92,7 @@ suite('markdown tests', async () => {
 					+++
 					water`,
 		})
-		await cliBuild(Ctx)
+		await commandBuild(Ctx)
 
 		await assertFiles({
 			'./build/post/my-slug/index.html': /<p>water/,
@@ -107,7 +109,7 @@ suite('markdown tests', async () => {
 					+++
 					Bravo`,
 		})
-		await cliBuild(Ctx)
+		await commandBuild(Ctx)
 
 		await assertFiles({
 			'./build/post/test/index.html': /<p>Bravo/,
@@ -125,7 +127,7 @@ suite('markdown tests', async () => {
 					+++
 					Bravo`,
 		})
-		await cliBuild(Ctx)
+		await commandBuild(Ctx)
 
 		await assertFiles({
 			'./build/post/my-slug/index.html': /<p>Bravo/,
@@ -139,7 +141,7 @@ suite('html tests', async () => {
 			'./content/post/test/index.html': dedent`
 					<p>water</p>`,
 		})
-		await cliBuild(Ctx)
+		await commandBuild(Ctx)
 
 		await assertFiles({
 			'./build/post/test/index.html': /<p>water/,
@@ -169,7 +171,7 @@ suite('html tests', async () => {
 			'./content/post/test/test.html': dedent`
 					<p>Bravo</p>`,
 		})
-		await cliBuild(Ctx)
+		await commandBuild(Ctx)
 
 		await assertFiles({
 			'./build/post/test/index.html': /<p>Bravo/,

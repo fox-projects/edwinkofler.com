@@ -14,7 +14,7 @@
 	"scripts": {
 		"build": "./rho.js build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules",
-		"dev": "pnpx nodemon -- ./rho.js serve",
+		"dev": "pnpx nodemon -- ./rho.js",
 		"test": "node ./rho.test.js"
 	},
 	"dependencies": {

@@ -17,17 +17,35 @@ import katex from 'katex'
 import browserSync from 'browser-sync'
 import chokidar from 'chokidar'
 import { listen, listenAndWatch } from 'listhen'
-import { createApp, createRouter, defineEventHandler, toNodeListener } from 'h3'
+import {
+	createApp,
+	createError,
+	createRouter,
+	defineEventHandler,
+	setResponseStatus,
+	toNodeListener,
+} from 'h3'
 
 import { ctx as _ctx } from './rho.config.js'
-import { markedKatex, markedLinks } from './rho.marked.js'
+import { markedLinks } from './rho.marked.js'
 
 export { consola }
 
 /**
+ * @typedef {typeof _ctx} Ctx
+ *
  * @typedef {'pages' | 'posts' | 'thoughts' | 'til'} ContentForm
  *
- * @typedef {typeof _ctx} Ctx
+ * @typedef {'build' | 'watch' | 'serve' | 'check'} Subcommands
+ *
+ * @typedef {Object} Page
+ * @property {string} inputFile
+ * @property {string} outputFile
+ * @property {string | null} entrypointFile
+ * @property {string} inputUri
+ * @property {string} outputUri
+ * @property {string | null} entrypointUri
+ * @property {ContentForm} contentForm
  *
  * @typedef {Object} Frontmatter
  * @property {string} title
@@ -56,9 +74,6 @@ export const MarkdownItInstance = (() => {
 	md.use(ShikiInstance)
 	md.use(markdownEmoji)
 	md.use(markedLinks)
-	// md.use(markedKatex, {
-	// 	strict: false
-	// })
 	return md
 })()
 const Cache = await (async () => {
@@ -74,8 +89,8 @@ const Cache = await (async () => {
 	}
 })()
 const /** @type {string[]} */ FileQueue = []
+const /** @type {Map<string, string>} */ FileMap = new Map()
 const OriginalHandlebarsHelpers = Object.keys(handlebarsImport.helpers)
-// _ctx.singletons.handlebars = handlebarsImport.create()
 
 if (
 	(function isTopLevel() {
@@ -86,7 +101,11 @@ if (
 		return isTopLevel
 	})()
 ) {
-	const helpText = `${path.basename(Filename)} <build | serve | check> [options]
+	await main()
+}
+
+async function main() {
+	const helpText = `${path.basename(Filename)} <build | watch | serve | check> [options]
   Options:
     -h, --help
     --clean
@@ -102,11 +121,19 @@ if (
 			help: { type: 'boolean', alias: 'h' },
 		},
 	})
+	_ctx.options.command = /** @type {Subcommands} */ (positionals[0])
 	_ctx.options.clean = values.clean ?? false
 	_ctx.options.verbose = values.verbose ?? false
 	_ctx.options.noCache = values['no-cache'] ?? false
 
-	if (!positionals[0]) {
+	/**
+	 * Variable _ctx is created at top-level for global type-inference, but we pass it
+	 * as a parameter to make testing easier. The top-level variable is prefixed with
+	 * an underscore so it is not accidentally used.
+	 */
+	const ctx = _ctx
+
+	if (!ctx.options.command) {
 		console.error(helpText)
 		consola.error('No command provided.')
 		process.exit(1)
@@ -117,19 +144,14 @@ if (
 		process.exit(0)
 	}
 
-	/**
-	 * Variable _ctx is created at top-level for global type-inference, but we pass it
-	 * as a parameter to make testing easier. The top-level variable is prefixed with
-	 * an underscore so it is not accidentally used.
-	 */
-	const ctx = _ctx
-
-	if (positionals[0] === 'build') {
-		await cliBuild(ctx)
-	} else if (positionals[0] === 'serve') {
-		await cliServe(ctx)
-	} else if (positionals[0] === 'check') {
-		await cliCheck(ctx)
+	if (ctx.options.command === 'serve') {
+		await commandServe(ctx)
+	} else if (ctx.options.command === 'watch') {
+		await commandWatch(ctx)
+	} else if (ctx.options.command === 'build') {
+		await commandBuild(ctx)
+	} else if (ctx.options.command === 'check') {
+		await commandCheck(ctx)
 	} else {
 		console.error(helpText)
 		consola.error(`Unknown command: ${positionals[0]}`)
@@ -137,12 +159,10 @@ if (
 	}
 }
 
-export async function cliBuild(/** @type {Ctx} */ ctx) {
-	await buildSite(ctx, iterateFileQueueByStackframe)
-}
-
-async function cliServe(/** @type {Ctx} */ ctx) {
-	let bs = null
+async function commandServe(/** @type {Ctx} */ ctx) {
+	await fsRegisterHandlebarsHelpers(ctx)
+	await fsPopulateFileMap(ctx)
+	console.log(FileMap)
 
 	const app = createApp()
 	const router = createRouter()
@@ -150,43 +170,53 @@ async function cliServe(/** @type {Ctx} */ ctx) {
 	router.get(
 		'/',
 		defineEventHandler((event) => {
-			return { message: '⚡️ Tadaa!' }
+			const path = event.path
+			if (FileMap.has(path)) {
+				return { message: 'Found' }
+			} else {
+				setResponseStatus(event, 404)
+				return { error: `Path does not exist: ${path}` }
+			}
 		}),
 	)
+
 	const listener = await listen(toNodeListener(app), {
 		port: 3001,
 		showURL: false,
 	})
-	consola.start(`Listening at http://localhost:${listener.address.port} (backend)`)
+	consola.start(`Listening at http://localhost:${listener.address.port}`)
 
-	initBrowserSync()
-	function initBrowserSync() {
-		bs = browserSync.create()
-		bs.init({
-			online: false,
-			notify: false,
-			open: false,
-			minify: false,
-			ui: false,
-			server: {
-				baseDir: ctx.config.outputDir,
-				serveStaticOptions: {
-					extensions: ['html'],
-				},
-			},
-			...(ctx.options.verbose ? {} : { logLevel: 'silent' }),
-			callbacks: {
-				ready(err, bs) {
-					if (err) throw err
+	process.on('SIGINT', async () => {
+		await listener.close()
+	})
+}
 
-					if (!ctx.options.verbose) {
-						const port = bs.getOption('port')
-						consola.start(`Listening at http://localhost:${port}`)
-					}
-				},
+async function commandWatch(/** @type {Ctx} */ ctx) {
+	const bs = browserSync.create()
+	bs.init({
+		online: false,
+		notify: false,
+		open: false,
+		minify: false,
+		ui: false,
+		server: {
+			baseDir: ctx.config.outputDir,
+			serveStaticOptions: {
+				extensions: ['html'],
 			},
-		})
-	}
+		},
+		...(ctx.options.verbose ? {} : { logLevel: 'silent' }),
+		callbacks: {
+			ready(err, bs) {
+				if (err) throw err
+
+				if (!ctx.options.verbose) {
+					const port = bs.getOption('port')
+					consola.start(`Listening at http://localhost:${port}`)
+				}
+			},
+		},
+	})
 
 	const watcher = chokidar.watch(
 		[
@@ -200,7 +230,6 @@ async function cliServe(/** @type {Ctx} */ ctx) {
 			ignoreInitial: true,
 		},
 	)
-
 	watcher
 		.on('add', async (inputFile) => {
 			await onChangedFile(ctx, inputFile)
@@ -214,17 +243,38 @@ async function cliServe(/** @type {Ctx} */ ctx) {
 
 	process.on('SIGINT', async () => {
 		bs.exit()
-		await listener.close()
 		await watcher.close()
 
 		consola.info('Cleaned up.')
 		process.exit(0)
 	})
 
-	await buildSite(ctx, iterateFileQueueByCallback.bind({ bs }))
+	if (ctx.options.clean) {
+		await fsClearBuildDirectory(ctx)
+	}
+	await fsRegisterHandlebarsHelpers(ctx)
+	await addAllToFileQueue(ctx)
+	await iterateFileQueueByCallback(ctx, {
+		onEmptyFileQueue() {
+			bs.reload()
+		},
+	})
+	await fsCopyStaticFiles(ctx)
+	consola.success('Done.')
 }
 
-async function cliCheck(/** @type {Ctx} */ ctx) {
+export async function commandBuild(/** @type {Ctx} */ ctx) {
+	if (ctx.options.clean) {
+		await fsClearBuildDirectory(ctx)
+	}
+	await fsRegisterHandlebarsHelpers(ctx)
+	await addAllToFileQueue(ctx)
+	await iterateFileQueueByStackframe(ctx)
+	await fsCopyStaticFiles(ctx)
+	consola.success('Done.')
+}
+
+async function commandCheck(/** @type {Ctx} */ ctx) {
 	try {
 		await execa({
 			stdout: 'inherit',
@@ -237,71 +287,10 @@ async function cliCheck(/** @type {Ctx} */ ctx) {
 	}
 }
 
-async function buildSite(
+async function iterateFileQueueByCallback(
 	/** @type {Ctx} */ ctx,
-	/** @type {(ctx: Ctx) => Promise<void>} */ processQueueFn,
+	{ onEmptyFileQueue = /** @type {() => void | Promise<void>} */ () => {} } = {},
 ) {
-	{
-		const handlebars = handlebarsImport.create()
-		// const handlebars = ctx.singletons.handlebars
-
-		// Re-register partials.
-		for (const partial in handlebars.partials) {
-			handlebars.unregisterPartial(partial)
-		}
-		try {
-			for (const partialFilename of await fs.readdir(ctx.config.partialsDir)) {
-				const partialContent = await fs.readFile(
-					path.join(ctx.config.partialsDir, partialFilename),
-					'utf-8',
-				)
-
-				handlebars.registerPartial(path.parse(partialFilename).name, partialContent)
-			}
-		} catch (err) {
-			if (err.code !== 'ENOENT') throw err
-		}
-
-		// Re-register helpers.
-		for (const helper in ctx.handlebarsHelpers) {
-			if (OriginalHandlebarsHelpers.includes(helper)) continue
-
-			handlebars.unregisterHelper(helper)
-		}
-		for (const helper in ctx.handlebarsHelpers) {
-			handlebars.registerHelper(helper, ctx.handlebarsHelpers[helper])
-		}
-
-		ctx.singletons.handlebars = handlebars
-	}
-
-	if (ctx.options.clean) {
-		consola.info('Clearing build directory...')
-		try {
-			await fs.rm(ctx.config.outputDir, { recursive: true })
-		} catch (err) {
-			if (err.code !== 'ENOENT') throw err
-		}
-	}
-
-	await addAllToFileQueue(ctx)
-	await processQueueFn(ctx)
-
-	/**
-	 * Copy static files
-	 */
-	try {
-		await fs.cp(ctx.config.staticDir, ctx.config.outputDir, {
-			recursive: true,
-		})
-	} catch (err) {
-		if (err.code !== 'ENOENT') throw err
-	}
-
-	consola.success('Done.')
-}
-
-async function iterateFileQueueByCallback(/** @type {Ctx} */ ctx) {
 	await cb()
 
 	async function cb() {
@@ -309,14 +298,13 @@ async function iterateFileQueueByCallback(/** @type {Ctx} */ ctx) {
 			await handleContentFile(ctx, FileQueue[0])
 			FileQueue.splice(0, 1)
 		} else {
-			if (this.bs) {
-				this.bs.reload()
-			}
+			await onEmptyFileQueue()
 		}
 
 		setImmediate(cb)
 	}
 }
+
 async function iterateFileQueueByStackframe(/** @type {Ctx} */ ctx) {
 	while (FileQueue.length > 0) {
 		await handleContentFile(ctx, FileQueue[0])
@@ -328,78 +316,66 @@ async function handleContentFile(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputFile,
 ) {
-	const inputFileUri = path.relative(ctx.config.rootDir, inputFile)
+	const inputUri = path.relative(ctx.config.rootDir, inputFile)
 
-	// A content file is an `inputFile` that is the entrypoint for a particular page route.
-	const entrypoint = await (async () => {
-		const dirname = path.basename(path.dirname(inputFile))
-		const files = [
-			path.join(path.dirname(inputFile), 'index.md'),
-			path.join(path.dirname(inputFile), 'index.html'),
-			path.join(path.dirname(inputFile), 'index.xml'),
-			path.join(path.dirname(inputFile), dirname + '.md'),
-			path.join(path.dirname(inputFile), dirname + '.html'),
-			path.join(path.dirname(inputFile), dirname + '.xml'),
-			path.join(path.dirname(inputFile), dirname),
-		]
-
-		// Search for a valid content file in the same directory.
-		for (const file of files) {
-			if (['.md', '.html', '.xml'].includes(path.parse(file).ext)) {
-				try {
-					await fs.stat(file)
-					return file
-				} catch {}
-			}
-		}
-
-		return null
-	})()
-
-	let contentForm = /** @type {ContentForm} */ (inputFileUri.slice('content/'.length))
+	let contentForm = /** @type {ContentForm} */ (inputUri.slice('content/'.length))
 	contentForm = /** @type {ContentForm} */ (
 		contentForm.slice(0, contentForm.indexOf('/'))
 	)
 
-	if (inputFile != entrypoint) {
-		await handleNonEntrypoint(ctx, inputFile, inputFileUri, entrypoint, contentForm)
-	}
+	const entrypointFile = await maybeGetEntrypointFromInputUri(ctx, inputFile)
+	const entrypointUri = entrypointFile
+		? path.relative(ctx.config.rootDir, entrypointFile)
+		: null
+	const outputUri = await inputUriToOutputUri(ctx, inputUri, entrypointFile, contentForm)
+	const outputFile = path.join(ctx.config.outputDir, outputUri)
 
-	if (entrypoint) {
-		await handleEntrypoint(ctx, entrypoint, contentForm)
+	const page = {
+		inputFile,
+		outputFile,
+		entrypointFile,
+		inputUri,
+		outputUri,
+		entrypointUri,
+		contentForm,
+	}
+	if (inputFile != entrypointFile) {
+		await handleNonEntrypoint(ctx, page)
+	} else if (entrypointFile) {
+		await handleEntrypoint(ctx, page)
 	} else {
-		consola.warn(`No content file found for ${inputFileUri}`)
+		consola.warn(`No content file found for ${inputUri}`)
 	}
 }
 
-async function handleEntrypoint(
-	/** @type {Ctx} */ ctx,
-	/** @type {string} */ entrypoint,
-	/** @type {ContentForm} */ contentForm,
-) {
-	const entrypointUri = path.relative(ctx.config.rootDir, entrypoint)
-	const entrypointUriTransformed = ctx.config.transformOutputUri(entrypointUri)
+async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
+	if (!page.entrypointFile || !page.entrypointUri)
+		throw new Error('No entrypoint values found.')
 
-	const lastModified = (await fs.stat(entrypoint)).mtimeMs
-	if (Cache[entrypointUri]?.lastModified >= lastModified && !ctx.options.noCache) {
-		consola.log(`Using cached ${entrypointUri}...`)
+	if (page.outputUri.includes('index.css')) {
+		console.log(page)
+	}
+
+	const lastModified = (await fs.stat(page.entrypointFile)).mtimeMs
+	if (Cache[page.entrypointUri]?.lastModified >= lastModified && !ctx.options.noCache) {
+		consola.log(`Using cached ${page.entrypointUri}...`)
 		return
 	}
 
 	let module = {}
 	try {
 		const javascriptFile = path.join(
-			path.dirname(entrypoint),
-			path.parse(entrypoint).base + '.rho.js',
+			path.dirname(page.entrypointFile),
+			path.parse(page.entrypointFile).base + '.rho.js',
 		)
 		module = await import(javascriptFile)
 	} catch (err) {
 		if (err.code !== 'ERR_MODULE_NOT_FOUND') throw err
 	}
 
-	consola.log(`Processing ${entrypointUri}...`)
-	if (entrypoint?.endsWith('.md')) {
-		let markdown = await fs.readFile(entrypoint, 'utf-8')
+	consola.log(`Processing ${page.entrypointUri}...`)
+	if (page.entrypointFile?.endsWith('.md')) {
+		let markdown = await fs.readFile(page.entrypointFile, 'utf-8')
 		const { html, frontmatter } = (() => {
 			let frontmatter = {}
 			markdown = markdown.replace(/^\+\+\+$(.*)\+\+\+$/ms, (_, toml) => {
@@ -409,31 +385,37 @@ async function handleEntrypoint(
 
 			return {
 				html: MarkdownItInstance.render(markdown),
-				frontmatter: ctx.config.validateFrontmatter(entrypoint, frontmatter, contentForm),
+				frontmatter: ctx.config.validateFrontmatter(
+					page.entrypointFile,
+					frontmatter,
+					page.contentForm,
+				),
 			}
 		})()
 
-		const layout = frontmatter.layout
-			? await fs.readFile(path.join(ctx.config.layoutDir, frontmatter.layout), 'utf-8')
-			: await ctx.config.getLayout(entrypointUri, contentForm)
+		const layout = await utilExtractLayout(ctx, [
+			frontmatter?.layout,
+			await ctx.config.getLayout(page.entrypointUri, page.contentForm),
+			ctx?.defaults?.layout,
+			'default.hbs',
+		])
 		const template = ctx.singletons.handlebars.compile(layout, {
 			noEscape: true,
 		})
 		const templatedHtml = template({
 			__title: frontmatter.title,
 			__body: html,
-			__inputUri: entrypointUri,
+			__inputUri: page.entrypointUri,
 		})
 
-		const relPart =
-			frontmatter.slug ?? path.basename(path.dirname(entrypointUriTransformed))
-		const outputUri = getOutputUriPart(entrypointUriTransformed, relPart)
-		const outputFile = path.join(ctx.config.outputDir, outputUri)
-		await fs.mkdir(path.dirname(outputFile), { recursive: true })
-		await fs.writeFile(outputFile, templatedHtml)
-		consola.log(`  -> Written to ${outputUri}`)
-	} else if (entrypoint?.endsWith('.html') || entrypoint?.endsWith('.xml')) {
-		let html = await fs.readFile(entrypoint, 'utf-8')
+		await fs.mkdir(path.dirname(page.outputFile), { recursive: true })
+		await fs.writeFile(page.outputFile, templatedHtml)
+		consola.log(`  -> Written to ${page.outputUri}`)
+	} else if (
+		page.entrypointFile?.endsWith('.html') ||
+		page.entrypointFile?.endsWith('.xml')
+	) {
+		let html = await fs.readFile(page.entrypointFile, 'utf-8')
 		if (module.GenerateSlugMapping) {
 			const slugMap = (await module?.GenerateSlugMapping(ctx.config, ctx.helpers)) ?? []
 			for (const slug of slugMap) {
@@ -453,56 +435,43 @@ async function handleEntrypoint(
 			})
 			let templatedHtml = template({
 				...data,
-				__inputUri: entrypointUri,
+				__inputUri: page.entrypointUri,
 			})
 			const meta = await module?.Meta?.()
 			const header = await module?.Header?.(ctx.config, ctx.helpers, {})
-			const layout1 = await ctx.config.getLayout(entrypointUri, contentForm)
-			let layoutContent
-			if (layout1 instanceof Buffer) {
-				layoutContent = layout1.toString()
-			} else {
-				const layoutFilename =
-					meta?.layout ?? null ?? ctx?.defaults?.layout ?? 'default.hbs'
-				layoutContent = await fs.readFile(
-					path.join(ctx.config.layoutDir, layoutFilename),
-					'utf-8',
-				)
-			}
+			const layout = await utilExtractLayout(ctx, [
+				meta?.layout,
+				ctx?.defaults?.layout,
+				'default.hbs',
+			])
 
-			templatedHtml = ctx.singletons.handlebars.compile(layoutContent, {
+			templatedHtml = ctx.singletons.handlebars.compile(layout, {
 				noEscape: true,
 			})({
 				__body: templatedHtml,
 				__header_title: header?.title ?? ctx?.defaults?.title ?? 'Website',
 				__header_content: header?.content ?? '',
-				__inputUri: entrypointUri,
+				__inputUri: page.entrypointUri,
 			})
 
-			const relPart = path.basename(path.dirname(entrypointUriTransformed))
-			const outputUri = getOutputUriPart(entrypointUriTransformed, relPart)
-			const outputFile = path.join(ctx.config.outputDir, outputUri)
-			await fs.mkdir(path.dirname(outputFile), { recursive: true })
-			await fs.writeFile(outputFile, templatedHtml)
-			consola.log(`  -> Written to ${outputUri}`)
+			await fs.mkdir(path.dirname(page.outputFile), { recursive: true })
+			await fs.writeFile(page.outputFile, templatedHtml)
+			consola.log(`  -> Written to ${page.outputUri}`)
 		}
 	}
 
-	Cache[entrypointUri] ??= {}
-	Cache[entrypointUri].lastModified = lastModified
+	Cache[page.entrypointUri] ??= {}
+	Cache[page.entrypointUri].lastModified = lastModified
 	await fs.mkdir(path.dirname(ctx.config.cacheFile), { recursive: true })
 	await fs.writeFile(ctx.config.cacheFile, JSON.stringify(Cache, null, '\t'))
 }
 
-async function handleNonEntrypoint(
-	/** @type {Ctx} */ ctx,
-	/** @type {string} */ inputFile,
-	/** @type {string} */ inputFileUri,
-	/** @type {string | null} */ entrypoint,
-	/** @type {ContentForm} */ contentForm,
-) {
-	if (inputFile.endsWith('.rho.js')) {
-		const maybeEntrypoint = inputFile.slice(0, inputFile.length - '.rho.js'.length)
+async function handleNonEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
+	if (page.inputFile.endsWith('.rho.js')) {
+		const maybeEntrypoint = page.inputFile.slice(
+			0,
+			page.inputFile.length - '.rho.js'.length,
+		)
 
 		try {
 			await fs.stat(maybeEntrypoint)
@@ -510,38 +479,87 @@ async function handleNonEntrypoint(
 		} catch (err) {
 			if (err.code === 'ENOENT') {
 				throw new Error(
-					`Expected to find entrypoint ${path.basename(maybeEntrypoint)} adjacent to JavaScript file: ${inputFile}`,
+					`Expected to find entrypoint ${path.basename(maybeEntrypoint)} adjacent to JavaScript file: ${page.inputFile}`,
 				)
 			} else {
 				throw err
 			}
 		}
 	} else {
-		const frontmatter = await (async () => {
-			if (!entrypoint) return {}
-
-			let markdown
-			try {
-				markdown = await fs.readFile(entrypoint, 'utf-8')
-			} catch {
-				return {}
-			}
-
-			let frontmatter = {}
-			markdown = markdown.replace(/^\+\+\+$(.*)\+\+\+$/ms, (_, toml) => {
-				frontmatter = TOML.parse(toml)
-				return ''
-			})
-			return ctx.config.validateFrontmatter(inputFile, frontmatter, contentForm)
-		})()
-		const inputFileUriTransformed = ctx.config.transformOutputUri(inputFileUri)
-		const relPart =
-			frontmatter.slug ?? path.basename(path.dirname(inputFileUriTransformed))
-		const outputUri = getOutputUriPart(inputFileUriTransformed, relPart)
-		const outputFile = path.join(ctx.config.outputDir, outputUri)
-		await fs.mkdir(path.dirname(outputFile), { recursive: true })
-		await fs.copyFile(inputFile, outputFile)
+		await fs.mkdir(path.dirname(page.outputFile), { recursive: true })
+		await fs.copyFile(page.inputFile, page.outputFile)
 	}
+}
+
+async function fsCopyStaticFiles(/** @type {Ctx} */ ctx) {
+	try {
+		await fs.cp(ctx.config.staticDir, ctx.config.outputDir, {
+			recursive: true,
+		})
+	} catch (err) {
+		if (err.code !== 'ENOENT') throw err
+	}
+}
+
+async function fsClearBuildDirectory(/** @type {Ctx} */ ctx) {
+	consola.info('Clearing build directory...')
+	try {
+		await fs.rm(ctx.config.outputDir, { recursive: true })
+	} catch (err) {
+		if (err.code !== 'ENOENT') throw err
+	}
+}
+
+async function fsPopulateFileMap(/** @type {Ctx} */ ctx) {
+	await walk(ctx.config.contentDir)
+	async function walk(/** @type {string} */ dir) {
+		for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+			if (entry.isDirectory()) {
+				if (entry.name === 'drafts') return // TODO
+
+				const subdir = path.join(entry.parentPath, entry.name)
+				await walk(subdir)
+			} else if (entry.isFile()) {
+				const inputFile = path.join(entry.parentPath, entry.name)
+				const inputUri = path.relative(ctx.config.rootDir, inputFile)
+				const outputFileTransformed = ctx.config.transformOutputUri(inputUri)
+				FileMap.set(outputFileTransformed, inputFile)
+			}
+		}
+	}
+}
+
+async function fsRegisterHandlebarsHelpers(/** @type {Ctx} */ ctx) {
+	const handlebars = handlebarsImport.create()
+
+	// Re-register partials.
+	for (const partial in handlebars.partials) {
+		handlebars.unregisterPartial(partial)
+	}
+	try {
+		for (const partialFilename of await fs.readdir(ctx.config.partialsDir)) {
+			const partialContent = await fs.readFile(
+				path.join(ctx.config.partialsDir, partialFilename),
+				'utf-8',
+			)
+
+			handlebars.registerPartial(path.parse(partialFilename).name, partialContent)
+		}
+	} catch (err) {
+		if (err.code !== 'ENOENT') throw err
+	}
+
+	// Re-register helpers.
+	for (const helper in ctx.handlebarsHelpers) {
+		if (OriginalHandlebarsHelpers.includes(helper)) continue
+
+		handlebars.unregisterHelper(helper)
+	}
+	for (const helper in ctx.handlebarsHelpers) {
+		handlebars.registerHelper(helper, ctx.handlebarsHelpers[helper])
+	}
+
+	ctx.singletons.handlebars = handlebars
 }
 
 async function addAllToFileQueue(/** @type {Ctx} */ ctx) {
@@ -575,22 +593,113 @@ async function onChangedFile(/** @type {Ctx} */ ctx, /** @type {string} */ input
 	}
 }
 
-function getOutputUriPart(/** @type {string} */ uri, /** @type {string} */ relPart) {
-	const dirname = path.basename(path.dirname(uri))
-	const beforeDirnamePart = path.dirname(path.dirname(uri))
+async function inputUriToOutputUri(
+	/** @type {Ctx} */ ctx,
+	/** @type {string} */ inputUri,
+	/** @type {string | null} */ entrypointFile,
+	/** @type {ContentForm} */ contentForm,
+) {
+	inputUri = ctx.config.transformOutputUri(inputUri)
 
-	// If `dirname` is a "file".
-	if (dirname.includes('.')) {
-		return path.join(beforeDirnamePart, path.parse(uri).base)
+	// For an `inputFile` of `/a/b/c.txt`, this extracts `/a`.
+	const pathPart = path.dirname(path.dirname(inputUri))
+	// For an `inputFile` of `/a/b/c.txt`, this extracts `b`.
+	const parentDirname = path.basename(path.dirname(inputUri))
+
+	// If `parentDirname` is a "file".
+	if (parentDirname.includes('.')) {
+		return path.join(pathPart, path.parse(inputUri).base)
+	} else if (!inputUri.endsWith('.html') && !inputUri.endsWith('.md')) {
+		const relPart = await getRelPart(inputUri, contentForm)
+		return path.join(pathPart, relPart, path.parse(inputUri).base)
+	} else if (path.parse(inputUri).name === parentDirname) {
+		const relPart = await getRelPart(inputUri, contentForm)
+		return path.join(pathPart, relPart, 'index.html')
+	} else {
+		const relPart = await getRelPart(inputUri, contentForm)
+		return path.join(pathPart, relPart, path.parse(inputUri).name + '.html')
 	}
 
-	if (!uri.endsWith('.html') && !uri.endsWith('.md')) {
-		return path.join(beforeDirnamePart, relPart, path.parse(uri).base)
+	async function getRelPart(
+		/** @type {string} */ inputUri,
+		/** @type {ContentForm} */ contentForm,
+	) {
+		const inputFile = path.join(ctx.config.contentDir, inputUri)
+
+		if (entrypointFile) {
+			const frontmatter = await extractContentFileFrontmatter(
+				ctx,
+				inputFile,
+				entrypointFile,
+				contentForm,
+			)
+			return frontmatter.slug ?? path.basename(path.dirname(inputUri))
+		} else {
+			return path.basename(path.dirname(inputUri))
+		}
+	}
+}
+
+async function maybeGetEntrypointFromInputUri(
+	/** @type {Ctx} */ ctx,
+	/** @type {string} */ inputFile,
+) {
+	const dirname = path.basename(path.dirname(inputFile))
+	const files = [
+		path.join(path.dirname(inputFile), 'index.md'),
+		path.join(path.dirname(inputFile), 'index.html'),
+		path.join(path.dirname(inputFile), 'index.xml'),
+		path.join(path.dirname(inputFile), dirname + '.md'),
+		path.join(path.dirname(inputFile), dirname + '.html'),
+		path.join(path.dirname(inputFile), dirname + '.xml'),
+		path.join(path.dirname(inputFile), dirname),
+	]
+
+	// Search for a valid content file in the same directory.
+	for (const file of files) {
+		if (['.md', '.html', '.xml'].includes(path.parse(file).ext)) {
+			try {
+				await fs.stat(file)
+				return file
+			} catch {}
+		}
 	}
 
-	if (path.parse(uri).name === dirname) {
-		return path.join(beforeDirnamePart, relPart, 'index.html')
+	return null
+}
+
+async function extractContentFileFrontmatter(
+	/** @type {Ctx} */ ctx,
+	/** @type {string} */ inputFile,
+	/** @type {string} */ entrypointFile,
+	/** @type {ContentForm} */ contentForm,
+) {
+	if (!inputFile) return {}
+
+	let markdown
+	try {
+		markdown = await fs.readFile(entrypointFile, 'utf-8')
+	} catch {
+		return {}
 	}
 
-	return path.join(beforeDirnamePart, relPart, path.parse(uri).name + '.html')
+	let frontmatter = {}
+	markdown = markdown.replace(/^\+\+\+$(.*)\+\+\+$/ms, (_, toml) => {
+		frontmatter = TOML.parse(toml)
+		return ''
+	})
+
+	return /** @type {ContentForm} */ (
+		ctx.config.validateFrontmatter(entrypointFile, frontmatter, contentForm)
+	)
+}
+
+async function utilExtractLayout(/** @type {Ctx} */ ctx, /** @type {any[]} */ layouts) {
+	for (const layout of layouts) {
+		if (layout instanceof Buffer) {
+			return layout.toString()
+		} else if (typeof layout === 'string') {
+			return await fs.readFile(path.join(ctx.config.layoutDir, layout), 'utf-8')
+		}
+	}
 }

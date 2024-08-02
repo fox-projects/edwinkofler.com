@@ -7,9 +7,18 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Program",
+			"name": "Run Build",
 			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
 			"args": ["build"],
+			"skipFiles": ["<node_internals>/**"],
+			"program": "${workspaceFolder}/rho.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Run Watch",
+			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
+			"args": ["watch"],
 			"skipFiles": ["<node_internals>/**"],
 			"program": "${workspaceFolder}/rho.js"
 		}
