@@ -38,14 +38,27 @@ export { consola }
  *
  * @typedef {'build' | 'watch' | 'serve' | 'check'} Subcommands
  *
+ * @typedef {Object} RhoJsMeta
+ * @property {string} [slug]
+ * @property {string} [layout]
+ *
+ * @typedef {{ slug: string, count: number }[]} RhoJsSlugMapping
+ *
+ * @typedef {Object} RhoJs
+ * @property {() => Promise<RhoJsMeta>} [Meta]
+ * @property {(arg0: Ctx) => Promise<any>} [Header]
+ * @property {(arg0: Ctx) => Promise<RhoJsSlugMapping>} [GenerateSlugMapping]
+ * @property {(arg0: Ctx) => Promise<any>} [GenerateTemplateVariables]
+ *
  * @typedef {Object} Page
  * @property {string} inputFile
  * @property {string} outputFile
- * @property {string | null} entrypointFile
+ * @property {string} entrypointFile
  * @property {string} inputUri
  * @property {string} outputUri
- * @property {string | null} entrypointUri
+ * @property {string} entrypointUri
  * @property {ContentForm} contentForm
+ * @property {RhoJs} rhoJs
  *
  * @typedef {Object} Frontmatter
  * @property {string} title
@@ -78,7 +91,7 @@ export const MarkdownItInstance = (() => {
 })()
 const Cache = await (async () => {
 	try {
-		const text = await fs.readFile(_ctx.config.cacheFile, 'utf-8')
+		const text = await fs.readFile(_ctx.defaults.cacheFile, 'utf-8')
 		return JSON.parse(text)
 	} catch (err) {
 		if (err.code === 'ENOENT') {
@@ -200,7 +213,7 @@ async function commandWatch(/** @type {Ctx} */ ctx) {
 		minify: false,
 		ui: false,
 		server: {
-			baseDir: ctx.config.outputDir,
+			baseDir: ctx.defaults.outputDir,
 			serveStaticOptions: {
 				extensions: ['html'],
 			},
@@ -220,10 +233,10 @@ async function commandWatch(/** @type {Ctx} */ ctx) {
 
 	const watcher = chokidar.watch(
 		[
-			ctx.config.contentDir,
-			ctx.config.layoutDir,
-			ctx.config.partialsDir,
-			ctx.config.staticDir,
+			ctx.defaults.contentDir,
+			ctx.defaults.layoutDir,
+			ctx.defaults.partialsDir,
+			ctx.defaults.staticDir,
 		],
 		{
 			persistent: true,
@@ -269,7 +282,7 @@ export async function commandBuild(/** @type {Ctx} */ ctx) {
 	}
 	await fsRegisterHandlebarsHelpers(ctx)
 	await addAllToFileQueue(ctx)
-	await iterateFileQueueByStackframe(ctx)
+	await iterateFileQueueByWhileLoop(ctx)
 	await fsCopyStaticFiles(ctx)
 	consola.success('Done.')
 }
@@ -305,7 +318,7 @@ async function iterateFileQueueByCallback(
 	}
 }
 
-async function iterateFileQueueByStackframe(/** @type {Ctx} */ ctx) {
+async function iterateFileQueueByWhileLoop(/** @type {Ctx} */ ctx) {
 	while (FileQueue.length > 0) {
 		await handleContentFile(ctx, FileQueue[0])
 		FileQueue.splice(0, 1)
@@ -316,19 +329,25 @@ async function handleContentFile(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputFile,
 ) {
-	const inputUri = path.relative(ctx.config.rootDir, inputFile)
+	const inputUri = path.relative(ctx.defaults.rootDir, inputFile)
 
+	// TODO: Phase out content form?
 	let contentForm = /** @type {ContentForm} */ (inputUri.slice('content/'.length))
 	contentForm = /** @type {ContentForm} */ (
 		contentForm.slice(0, contentForm.indexOf('/'))
 	)
 
-	const entrypointFile = await maybeGetEntrypointFromInputUri(ctx, inputFile)
-	const entrypointUri = entrypointFile
-		? path.relative(ctx.config.rootDir, entrypointFile)
-		: null
-	const outputUri = await inputUriToOutputUri(ctx, inputUri, entrypointFile, contentForm)
-	const outputFile = path.join(ctx.config.outputDir, outputUri)
+	const entrypointFile = await utilGetEntrypointFromInputUri(ctx, inputFile)
+	const entrypointUri = path.relative(ctx.defaults.rootDir, entrypointFile)
+	const rhoJs = await utilExtractRhoJs(ctx, entrypointFile)
+	const outputUri = await inputUriToOutputUri(
+		ctx,
+		inputUri,
+		rhoJs,
+		entrypointFile,
+		contentForm,
+	)
+	const outputFile = path.join(ctx.defaults.outputDir, outputUri)
 
 	const page = {
 		inputFile,
@@ -338,6 +357,7 @@ async function handleContentFile(
 		outputUri,
 		entrypointUri,
 		contentForm,
+		rhoJs,
 	}
 	if (inputFile != entrypointFile) {
 		await handleNonEntrypoint(ctx, page)
@@ -360,17 +380,6 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 	if (Cache[page.entrypointUri]?.lastModified >= lastModified && !ctx.options.noCache) {
 		consola.log(`Using cached ${page.entrypointUri}...`)
 		return
-	}
-
-	let module = {}
-	try {
-		const javascriptFile = path.join(
-			path.dirname(page.entrypointFile),
-			path.parse(page.entrypointFile).base + '.rho.js',
-		)
-		module = await import(javascriptFile)
-	} catch (err) {
-		if (err.code !== 'ERR_MODULE_NOT_FOUND') throw err
 	}
 
 	consola.log(`Processing ${page.entrypointUri}...`)
@@ -416,16 +425,14 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 		page.entrypointFile?.endsWith('.xml')
 	) {
 		let html = await fs.readFile(page.entrypointFile, 'utf-8')
-		if (module.GenerateSlugMapping) {
-			const slugMap = (await module?.GenerateSlugMapping(ctx.config, ctx.helpers)) ?? []
+		if (page.rhoJs.GenerateSlugMapping) {
+			const slugMap = (await page.rhoJs?.GenerateSlugMapping(ctx)) ?? []
 			for (const slug of slugMap) {
-				const data =
-					(await module?.GenerateTemplateVariables?.(ctx.config, ctx.helpers, slug)) ?? {}
+				const data = (await page.rhoJs?.GenerateTemplateVariables?.(ctx)) ?? {}
 				await writeHtmlEndpoint(data)
 			}
 		} else {
-			const data =
-				(await module?.GenerateTemplateVariables?.(ctx.config, ctx.helpers, {})) ?? {}
+			const data = (await page.rhoJs?.GenerateTemplateVariables?.(ctx)) ?? {}
 			await writeHtmlEndpoint(data)
 		}
 
@@ -437,10 +444,11 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 				...data,
 				__inputUri: page.entrypointUri,
 			})
-			const meta = await module?.Meta?.()
-			const header = await module?.Header?.(ctx.config, ctx.helpers, {})
+			const meta = await page.rhoJs?.Meta?.()
+			const header = await page.rhoJs?.Header?.(ctx)
 			const layout = await utilExtractLayout(ctx, [
 				meta?.layout,
+				await ctx.config.getLayout(page.entrypointUri ?? '', page.contentForm),
 				ctx?.defaults?.layout,
 				'default.hbs',
 			])
@@ -462,8 +470,8 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 
 	Cache[page.entrypointUri] ??= {}
 	Cache[page.entrypointUri].lastModified = lastModified
-	await fs.mkdir(path.dirname(ctx.config.cacheFile), { recursive: true })
-	await fs.writeFile(ctx.config.cacheFile, JSON.stringify(Cache, null, '\t'))
+	await fs.mkdir(path.dirname(ctx.defaults.cacheFile), { recursive: true })
+	await fs.writeFile(ctx.defaults.cacheFile, JSON.stringify(Cache, null, '\t'))
 }
 
 async function handleNonEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
@@ -493,7 +501,7 @@ async function handleNonEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ p
 
 async function fsCopyStaticFiles(/** @type {Ctx} */ ctx) {
 	try {
-		await fs.cp(ctx.config.staticDir, ctx.config.outputDir, {
+		await fs.cp(ctx.defaults.staticDir, ctx.defaults.outputDir, {
 			recursive: true,
 		})
 	} catch (err) {
@@ -504,14 +512,14 @@ async function fsCopyStaticFiles(/** @type {Ctx} */ ctx) {
 async function fsClearBuildDirectory(/** @type {Ctx} */ ctx) {
 	consola.info('Clearing build directory...')
 	try {
-		await fs.rm(ctx.config.outputDir, { recursive: true })
+		await fs.rm(ctx.defaults.outputDir, { recursive: true })
 	} catch (err) {
 		if (err.code !== 'ENOENT') throw err
 	}
 }
 
 async function fsPopulateFileMap(/** @type {Ctx} */ ctx) {
-	await walk(ctx.config.contentDir)
+	await walk(ctx.defaults.contentDir)
 	async function walk(/** @type {string} */ dir) {
 		for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
 			if (entry.isDirectory()) {
@@ -521,9 +529,10 @@ async function fsPopulateFileMap(/** @type {Ctx} */ ctx) {
 				await walk(subdir)
 			} else if (entry.isFile()) {
 				const inputFile = path.join(entry.parentPath, entry.name)
-				const inputUri = path.relative(ctx.config.rootDir, inputFile)
-				const outputFileTransformed = ctx.config.transformOutputUri(inputUri)
-				FileMap.set(outputFileTransformed, inputFile)
+				const inputUri = path.relative(ctx.defaults.rootDir, inputFile)
+				const entrypointFile = await utilGetEntrypointFromInputUri(ctx, inputFile)
+				const outputUri = await inputUriToOutputUri(ctx, inputUri, entrypointFile)
+				FileMap.set(outputUri, inputFile)
 			}
 		}
 	}
@@ -537,9 +546,9 @@ async function fsRegisterHandlebarsHelpers(/** @type {Ctx} */ ctx) {
 		handlebars.unregisterPartial(partial)
 	}
 	try {
-		for (const partialFilename of await fs.readdir(ctx.config.partialsDir)) {
+		for (const partialFilename of await fs.readdir(ctx.defaults.partialsDir)) {
 			const partialContent = await fs.readFile(
-				path.join(ctx.config.partialsDir, partialFilename),
+				path.join(ctx.defaults.partialsDir, partialFilename),
 				'utf-8',
 			)
 
@@ -563,7 +572,7 @@ async function fsRegisterHandlebarsHelpers(/** @type {Ctx} */ ctx) {
 }
 
 async function addAllToFileQueue(/** @type {Ctx} */ ctx) {
-	await walk(ctx.config.contentDir)
+	await walk(ctx.defaults.contentDir)
 	async function walk(/** @type {string} */ dir) {
 		for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
 			if (entry.isDirectory()) {
@@ -585,7 +594,7 @@ async function addAllToFileQueue(/** @type {Ctx} */ ctx) {
  */
 async function onChangedFile(/** @type {Ctx} */ ctx, /** @type {string} */ inputFile) {
 	FileQueue.splice(0, FileQueue.length)
-	const inputFileUri = path.relative(ctx.config.rootDir, inputFile)
+	const inputFileUri = path.relative(ctx.defaults.rootDir, inputFile)
 	if (inputFileUri.startsWith('content/')) {
 		FileQueue.push(inputFile)
 	} else {
@@ -596,10 +605,13 @@ async function onChangedFile(/** @type {Ctx} */ ctx, /** @type {string} */ input
 async function inputUriToOutputUri(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputUri,
+	/** @type {RhoJs} */ rhoJs,
 	/** @type {string | null} */ entrypointFile,
 	/** @type {ContentForm} */ contentForm,
 ) {
-	inputUri = ctx.config.transformOutputUri(inputUri)
+	const inputFile = path.join(ctx.defaults.rootDir, inputUri)
+	inputUri = path.relative(ctx.defaults.contentDir, inputFile)
+	inputUri = ctx.config.customUriTransform(inputUri)
 
 	// For an `inputFile` of `/a/b/c.txt`, this extracts `/a`.
 	const pathPart = path.dirname(path.dirname(inputUri))
@@ -610,21 +622,27 @@ async function inputUriToOutputUri(
 	if (parentDirname.includes('.')) {
 		return path.join(pathPart, path.parse(inputUri).base)
 	} else if (!inputUri.endsWith('.html') && !inputUri.endsWith('.md')) {
-		const relPart = await getRelPart(inputUri, contentForm)
+		const relPart = await getRelPart(ctx, inputUri, contentForm)
 		return path.join(pathPart, relPart, path.parse(inputUri).base)
 	} else if (path.parse(inputUri).name === parentDirname) {
-		const relPart = await getRelPart(inputUri, contentForm)
+		const relPart = await getRelPart(ctx, inputUri, contentForm)
 		return path.join(pathPart, relPart, 'index.html')
 	} else {
-		const relPart = await getRelPart(inputUri, contentForm)
+		const relPart = await getRelPart(ctx, inputUri, contentForm)
 		return path.join(pathPart, relPart, path.parse(inputUri).name + '.html')
 	}
 
 	async function getRelPart(
+		/** @type {Ctx} */ ctx,
 		/** @type {string} */ inputUri,
 		/** @type {ContentForm} */ contentForm,
 	) {
-		const inputFile = path.join(ctx.config.contentDir, inputUri)
+		const inputFile = path.join(ctx.defaults.contentDir, inputUri)
+
+		const meta = await rhoJs?.Meta?.()
+		if (meta?.slug) {
+			return meta.slug
+		}
 
 		if (entrypointFile) {
 			const frontmatter = await extractContentFileFrontmatter(
@@ -638,34 +656,6 @@ async function inputUriToOutputUri(
 			return path.basename(path.dirname(inputUri))
 		}
 	}
-}
-
-async function maybeGetEntrypointFromInputUri(
-	/** @type {Ctx} */ ctx,
-	/** @type {string} */ inputFile,
-) {
-	const dirname = path.basename(path.dirname(inputFile))
-	const files = [
-		path.join(path.dirname(inputFile), 'index.md'),
-		path.join(path.dirname(inputFile), 'index.html'),
-		path.join(path.dirname(inputFile), 'index.xml'),
-		path.join(path.dirname(inputFile), dirname + '.md'),
-		path.join(path.dirname(inputFile), dirname + '.html'),
-		path.join(path.dirname(inputFile), dirname + '.xml'),
-		path.join(path.dirname(inputFile), dirname),
-	]
-
-	// Search for a valid content file in the same directory.
-	for (const file of files) {
-		if (['.md', '.html', '.xml'].includes(path.parse(file).ext)) {
-			try {
-				await fs.stat(file)
-				return file
-			} catch {}
-		}
-	}
-
-	return null
 }
 
 async function extractContentFileFrontmatter(
@@ -699,7 +689,52 @@ async function utilExtractLayout(/** @type {Ctx} */ ctx, /** @type {any[]} */ la
 		if (layout instanceof Buffer) {
 			return layout.toString()
 		} else if (typeof layout === 'string') {
-			return await fs.readFile(path.join(ctx.config.layoutDir, layout), 'utf-8')
+			return await fs.readFile(path.join(ctx.defaults.layoutDir, layout), 'utf-8')
 		}
 	}
+}
+
+async function utilExtractRhoJs(
+	/** @type {Ctx} */ ctx,
+	/** @type {string} */ entrypointFile,
+) {
+	try {
+		const javascriptFile = path.join(
+			path.dirname(entrypointFile),
+			path.parse(entrypointFile).base + '.rho.js',
+		)
+		let /** @type {RhoJs} */ rhoJs = await import(javascriptFile)
+		return rhoJs
+	} catch (err) {
+		if (err.code !== 'ERR_MODULE_NOT_FOUND') throw err
+	}
+	return {}
+}
+
+async function utilGetEntrypointFromInputUri(
+	/** @type {Ctx} */ ctx,
+	/** @type {string} */ inputFile,
+) {
+	const dirname = path.basename(path.dirname(inputFile))
+	const files = [
+		path.join(path.dirname(inputFile), 'index.md'),
+		path.join(path.dirname(inputFile), 'index.html'),
+		path.join(path.dirname(inputFile), 'index.xml'),
+		path.join(path.dirname(inputFile), dirname + '.md'),
+		path.join(path.dirname(inputFile), dirname + '.html'),
+		path.join(path.dirname(inputFile), dirname + '.xml'),
+		path.join(path.dirname(inputFile), dirname),
+	]
+
+	// Search for a valid content file in the same directory.
+	for (const file of files) {
+		if (['.md', '.html', '.xml'].includes(path.parse(file).ext)) {
+			try {
+				await fs.stat(file)
+				return file
+			} catch {}
+		}
+	}
+
+	throw new Error(`No entrypoint found for file: ${inputFile}`)
 }

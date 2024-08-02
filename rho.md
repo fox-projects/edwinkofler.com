@@ -1,6 +1,6 @@
-# Documentation for `rho.js`
+# Rho
 
-Wedding myself to a third-party static site generator solution limits the degree to which I can customize my website. `rho.js` solves that because it's my software.
+Wedding myself to a third-party static site generator solution limits the degree to which I can customize my website. Rho solves that because it's my software.
 
 ## Plans
 
@@ -10,9 +10,49 @@ Wedding myself to a third-party static site generator solution limits the degree
 - Dependency: Replace `browser-sync` with custom solution
 - Linter to always ensure trailing slash for local URLs
 
-## Concepts
+## Introduction
 
-### Leafs
+Rho is a static site generator. Conventionally, it reads input files from `content/`; for each file, it is processed, then written to `build/`. When processing each file, it transforms both its path and content.
+
+## Content
+
+When walking the content directory, every directory is associated with either a route or file. For each directory, there are two possible types of files:
+
+### 1. Entrypoint Files
+
+These are similar to `index.js` in, say, a Next project.
+
+#### Entrypoint file possibilities
+
+The first is no surprise; if a file's name (excluding file extension) is `index`, it is considered an entrypoint file.
+
+- `/pages/index.html` -> `/index.html`
+
+If a file (minus its extension) has the same name as it's parent directory, it's name is changed to `index`. This makes keeping track of files in editors easier:
+
+- `/pages/about/about.md` -> `/about/index.html`
+
+If a file has the same name as it's parent directory (and has a dot), the parent directory is removed. This makes it easy to group logic associated with a particular non-directory route:
+
+- `/pages/index.html/index.html` -> `/index.html`
+
+### 2. Non-entrypoint files
+
+These files are files associated with the entrypoint. Sometimes they are copied to the build directory; other times, they are not. They can include:
+
+- `style.css`
+- `something.rho.js`
+
+#### Entrypoint File Formats
+
+For now, `.html`, `xml`, and `.md` files are supported.
+
+## JavaScript Customization
+
+- `Meta()`
+- `Header()`
+- `GenerateSlugMapping()`
+- `GenerateTemplateVariables()`
 
 ## Directory Structure
 
@@ -26,17 +66,15 @@ Where output files are written to.
 
 User-generated content. There are several variants:
 
-#### `pages/`
+#### `content/pages/`
 
 Contains directories and files that each represent an individual page. For example, the directory `/pages/about` represents `/about/index.html` while the file `pages/index.xml` represents `/index.xml`.
 
-#### `posts/`
+#### `content/posts/`
 
 Contains subdirectories with a dirname of either (1) a year (ex. `2005`) or (2) the value `drafts`. The subdirectories of those subdirectories represent an individual page (ex. `posts/2023/oppenheimer-movie-review`). Drafts are automatically shown when running the development server and automatically hidden when building the blog, unless indicated otherwise by the `--show-drafts` command-line flag.
 
-#### `til/`
-
-#### `papers/`
+#### `content/til/`
 
 ### `layouts/`
 
@@ -44,61 +82,8 @@ Handlebars templates that are applied to all pages and posts. Individual pages a
 
 ### `partials/`
 
-Handlebars templates that can be used in any HTML file.
+Handlebars partials that can be used in any HTML file.
 
 ### `static/`
 
 These assets are copied directly to the build directory without processing.
-
-## Page and Post Handling
-
-Pages and posts (like the aforementioned `/pages/about` and `posts/2023/oppenheimer-movie-review`) have a particular directory structure.
-
-The directory must have a "content file" with the same name as the directory name (ex. `/pages/about/about.md` or `/pages/about/about.html`). A JavaScript file with the same name (ex. `/pages/about/about.js`) is treated specially; exporting functions allows for customizing behavior.
-
-All other files are copied over, unprocessed.
-
-### Layouts
-
-Pages can have a different layout.
-
-### Content Handling
-
-There are three types of content files:
-
-1. **Entrypoint files**
-
-These are treated specially.
-
-3. **Non-entrypoint files**
-
-These are simply copied over.
-
-4. **Rho files**
-
-Contains custom logic; not copied over. End in `.rho.js`.
-
-#### Entrypoint File Transformations
-
-If a file (minus its extension) has the same name as it's parent directory, it's name is changed to `index`. This makes keeping track of files in editors easier:
-
-- `/pages/about/about.md` -> `/about/index.html`
-
-If a file has the same name as it's parent directory (and has a dot), the parent directory is removed. This makes it easy to group logic associated with a particular non-directory route:
-
-- `/pages/index.html/index.html` -> `/index.html`
-
-All other files are copied verbatim:
-
-- `/pages/index.html` -> `/index.html`
-
-#### Entrypoint File Formats
-
-For now, `.html`, `xml`, and `.md` files are supported.
-
-## JavaScript Customization
-
-- `Meta()`
-- `Header()`
-- `GenerateSlugMapping()`
-- `GenerateTemplateVariables()`

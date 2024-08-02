@@ -1,5 +1,5 @@
-export async function GenerateSlugMapping(Config, Helpers) {
-	const posts = await Helpers.getPosts(Config)
+export async function GenerateSlugMapping(ctx) {
+	const posts = await Helpers.getPosts(ctx.config)
 
 	let categories = {}
 	for (const post of posts) {
@@ -12,10 +12,10 @@ export async function GenerateSlugMapping(Config, Helpers) {
 		}
 	}
 
-	const tagsArr = Object.keys(categories).map(category => {
+	const tagsArr = Object.keys(categories).map((category) => {
 		return {
 			slug: category,
-			count: categories[category]
+			count: categories[category],
 		}
 	})
 	return tagsArr
@@ -33,6 +33,6 @@ export async function GenerateTemplateVariables(Config, Helpers, { slug, count }
 
 	return {
 		category: slug,
-		posts: filteredPosts
+		posts: filteredPosts,
 	}
 }

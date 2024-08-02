@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
+import handlebarsImport from 'handlebars'
 import { execa } from 'execa'
 import dedent from 'dedent'
 
@@ -13,18 +14,26 @@ const Dirname = path.dirname(Filename)
 const TestDataDir = path.join(Dirname, './testdata')
 const OriginalCwd = process.cwd()
 const Ctx = Object.freeze({
-	options: {
-		clean: false,
-		verbose: false,
+	singletons: {
+		handlebars: handlebarsImport.create(),
 	},
-	config: {
+	defaults: {
+		rootDir: TestDataDir,
 		buildJsFile: path.join(Dirname, 'rho.js'),
+		cacheFile: path.join(TestDataDir, '.cache/cache.json'),
 		contentDir: path.join(TestDataDir, 'content'),
 		layoutDir: path.join(TestDataDir, 'layouts'),
 		partialsDir: path.join(TestDataDir, 'partials'),
 		staticDir: path.join(TestDataDir, 'static'),
 		outputDir: path.join(TestDataDir, 'build'),
-		transformOutputUri(/** @type {string} */ uri) {
+	},
+	options: {
+		clean: false,
+		verbose: false,
+		noCache: true,
+	},
+	config: {
+		customUriTransform(/** @type {string} */ uri) {
 			return uri
 		},
 		getLayout(
@@ -45,6 +54,13 @@ const Ctx = Object.freeze({
 					</html>`,
 			)
 		},
+		validateFrontmatter(
+			/** @type {string} */ inputFile,
+			/** @type {Partial<Frontmatter>} */ frontmatter,
+			/** @type {ContentForm} */ contentForm,
+		) {
+			return frontmatter
+		},
 	},
 })
 
@@ -63,10 +79,10 @@ afterEach(async () => {
 	await fs.rm(TestDataDir, { recursive: true, force: true })
 })
 
-suite('markdown tests', async () => {
+suite('entrypoint files are found', async () => {
 	test('test/index.md', async () => {
 		await writeFiles({
-			'./content/post/test/index.md': dedent`
+			'./content/test/index.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -77,13 +93,13 @@ suite('markdown tests', async () => {
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>water/,
+			'./build/test/index.html': /<p>water/,
 		})
 	})
 
 	test('test/index.md with slug', async () => {
 		await writeFiles({
-			'./content/post/test/index.md': dedent`
+			'./content/test/index.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -95,13 +111,13 @@ suite('markdown tests', async () => {
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/my-slug/index.html': /<p>water/,
+			'./build/my-slug/index.html': /<p>water/,
 		})
 	})
 
 	test('test/test.md', async () => {
 		await writeFiles({
-			'./content/post/test/test.md': dedent`
+			'./content/test/test.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -112,13 +128,13 @@ suite('markdown tests', async () => {
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>Bravo/,
+			'./build/test/index.html': /<p>Bravo/,
 		})
 	})
 
 	test('test/test.md with slug', async () => {
 		await writeFiles({
-			'./content/post/test/test.md': dedent`
+			'./content/test/test.md': dedent`
 					+++
 					title = 'Title'
 					author = 'First Last'
@@ -130,7 +146,7 @@ suite('markdown tests', async () => {
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/my-slug/index.html': /<p>Bravo/,
+			'./build/my-slug/index.html': /<p>Bravo/,
 		})
 	})
 })
@@ -138,63 +154,63 @@ suite('markdown tests', async () => {
 suite('html tests', async () => {
 	test('test/index.html', async () => {
 		await writeFiles({
-			'./content/post/test/index.html': dedent`
+			'./content/test/index.html': dedent`
 					<p>water</p>`,
 		})
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>water/,
+			'./build/test/index.html': /<p>water/,
 		})
 	})
 
-	// test('test/index.html with slug', async () => {
-	// 	await writeFiles({
-	// 		'./content/post/test/index.html': dedent`
-	// 				+++
-	// 				title = 'Title'
-	// 				author = 'First Last'
-	// 				date = 2000-01-01
-	// 				slug = 'my-slug'
-	// 				+++
-	// 				water`
-	// 	})
-	// 	await cliBuild(Ctx)
+	test('test/index.html with slug', async () => {
+		await writeFiles({
+			'./content/test/index.html': dedent`
+					<p>water</p>`,
+			'./content/test/index.html.rho.js': dedent`
+					export function Meta() {
+						return {
+							slug: 'my-slug'
+						}
+					}`,
+		})
+		await commandBuild(Ctx)
 
-	// 	await assertFiles({
-	// 		'./build/post/my-slug/index.html': /<p>water/
-	// 	})
-	// })
+		await assertFiles({
+			'./build/my-slug/index.html': /<p>water/,
+		})
+	})
 
 	test('test/test.html', async () => {
 		await writeFiles({
-			'./content/post/test/test.html': dedent`
+			'./content/test/test.html': dedent`
 					<p>Bravo</p>`,
 		})
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/post/test/index.html': /<p>Bravo/,
+			'./build/test/index.html': /<p>Bravo/,
 		})
 	})
 
-	// test('test/test.html with slug', async () => {
-	// 	await writeFiles({
-	// 		'./content/post/test/test.html': dedent`
-	// 				+++
-	// 				title = 'Title'
-	// 				author = 'First Last'
-	// 				date = 2000-01-01
-	// 				slug = 'my-slug'
-	// 				+++
-	// 				Bravo`
-	// 	})
-	// 	await cliBuild(Ctx)
+	test('test/test.html with slug', async () => {
+		await writeFiles({
+			'./content/test/test.html': dedent`
+					<p>Bravo</p>`,
+			'./content/test/test.html.rho.js': dedent`
+					export function Meta() {
+						return {
+							slug: 'my-slug'
+						}
+					}`,
+		})
+		await commandBuild(Ctx)
 
-	// 	await assertFiles({
-	// 		'./build/post/my-slug/index.html': /<p>Bravo/
-	// 	})
-	// })
+		await assertFiles({
+			'./build/my-slug/index.html': /<p>Bravo/,
+		})
+	})
 })
 
 async function debugTestDir() {
@@ -220,7 +236,7 @@ async function writeFiles(/** @type {Record<string, string>} */ fileObject) {
 
 async function assertFiles(/** @type {Record<string, string>} */ assertObject) {
 	for (const filename in assertObject) {
-		await test(`Evaluate file: ${filename}`, async (t) => {
+		await test(`File: ${filename}`, async (t) => {
 			try {
 				await fs.stat(filename)
 			} catch (err) {

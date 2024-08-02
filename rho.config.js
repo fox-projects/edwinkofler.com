@@ -15,6 +15,14 @@ export const ctx = Object.freeze({
 	defaults: /** @type {const} */ ({
 		title: 'Edwin Kofler',
 		layout: 'default.hbs',
+		rootDir: Dirname,
+		buildJsFile: path.join(Dirname, 'rho.js'),
+		cacheFile: path.join(Dirname, '.cache/cache.json'),
+		contentDir: path.join(Dirname, 'content'),
+		layoutDir: path.join(Dirname, 'layouts'),
+		partialsDir: path.join(Dirname, 'partials'),
+		staticDir: path.join(Dirname, 'static'),
+		outputDir: path.join(Dirname, 'build'),
 	}),
 	// These are set in `rho.js`.
 	options: {
@@ -24,19 +32,7 @@ export const ctx = Object.freeze({
 		noCache: /** @type {boolean} */ (undefined),
 	},
 	config: /** @type {const} */ ({
-		rootDir: Dirname,
-		buildJsFile: path.join(Dirname, 'rho.js'),
-		cacheFile: path.join(Dirname, '.cache/cache.json'),
-		contentDir: path.join(Dirname, 'content'),
-		layoutDir: path.join(Dirname, 'layouts'),
-		partialsDir: path.join(Dirname, 'partials'),
-		staticDir: path.join(Dirname, 'static'),
-		outputDir: path.join(Dirname, 'build'),
-		transformOutputUri(/** @type {string} */ uri) {
-			if (uri.startsWith('content/')) {
-				uri = uri.slice('content/'.length)
-			}
-
+		customUriTransform(/** @type {string} */ uri) {
 			if (uri.startsWith('pages/')) {
 				uri = uri.slice('pages'.length)
 			} else if (uri.startsWith('posts/')) {
@@ -91,7 +87,6 @@ export const ctx = Object.freeze({
 	}),
 	handlebarsHelpers: /** @type {const} */ ({
 		insertStyleTag(/** @type {string} */ inputUri) {
-			console.log(inputUri)
 			if (inputUri === 'content/pages/index.html/index.html') {
 				return `<link rel="stylesheet" href="/index.css" />`
 			} else if (inputUri === 'content/pages/links/links.html') {
@@ -110,14 +105,14 @@ export const ctx = Object.freeze({
 
 async function helperGetPosts(/** @type {Ctx} */ ctx) {
 	const posts = []
-	for (const year of await fs.readdir(path.join(ctx.config.contentDir, 'posts'))) {
+	for (const year of await fs.readdir(path.join(ctx.defaults.contentDir, 'posts'))) {
 		if (year === 'drafts') continue
 
 		for (const post of await fs.readdir(
-			path.join(ctx.config.contentDir, 'posts', year),
+			path.join(ctx.defaults.contentDir, 'posts', year),
 		)) {
 			const inputFile = await getInputFile(
-				path.join(ctx.config.contentDir, 'posts', year, post),
+				path.join(ctx.defaults.contentDir, 'posts', year, post),
 				post,
 			)
 			let markdown = await fs.readFile(inputFile, 'utf-8')
