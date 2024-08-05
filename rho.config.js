@@ -72,9 +72,16 @@ export const ctx = Object.freeze({
 
 			for (const property in frontmatter) {
 				if (
-					!['title', 'author', 'date', 'layout', 'slug', 'categories', 'tags'].includes(
-						property,
-					)
+					![
+						'title',
+						'author',
+						'date',
+						'layout',
+						'slug',
+						'categories',
+						'tags',
+						'draft',
+					].includes(property)
 				) {
 					throw new Error(
 						`Invalid frontmatter property of "${property}" in file: ${inputFile}`,

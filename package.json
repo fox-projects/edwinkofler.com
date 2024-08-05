@@ -14,8 +14,9 @@
 	"scripts": {
 		"build": "./rho.js build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules",
-		"dev": "pnpx nodemon -- ./rho.js",
-		"test": "node ./rho.test.js"
+		"dev": "pnpx nodemon --import ./rho.register.js -- ./rho.js",
+		"test": "node --import ./rho.register.js ./rho.test.js",
+		"test:only": "node --import ./rho.register.js --test-only ./rho.test.js"
 	},
 	"dependencies": {
 		"@shikijs/markdown-it": "^1.9.0",

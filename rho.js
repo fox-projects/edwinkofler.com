@@ -48,12 +48,10 @@ export { consola }
  * @property {() => Promise<RhoJsMeta>} [Meta]
  * @property {(arg0: Ctx) => Promise<any>} [Header]
  * @property {(arg0: Ctx) => Promise<RhoJsSlugMapping>} [GenerateSlugMapping]
- * @property {(arg0: Ctx) => Promise<any>} [GenerateTemplateVariables]
+ * @property {(arg0: Ctx, arg1: { slug?: string, count?: number }) => Promise<any>} [GenerateTemplateVariables]
  *
  * @typedef {Object} Page
  * @property {string} inputFile
- * @property {string} outputFile
- * @property {string} entrypointFile
  * @property {string} inputUri
  * @property {string} outputUri
  * @property {string} entrypointUri
@@ -266,14 +264,33 @@ async function commandWatch(/** @type {Ctx} */ ctx) {
 		await fsClearBuildDirectory(ctx)
 	}
 	await fsRegisterHandlebarsHelpers(ctx)
-	await addAllToFileQueue(ctx)
+	await addAllContentFilesToFileQueue(ctx)
 	await iterateFileQueueByCallback(ctx, {
 		onEmptyFileQueue() {
+			consola.success('Done.')
 			bs.reload()
 		},
 	})
 	await fsCopyStaticFiles(ctx)
-	consola.success('Done.')
+
+	/**
+	 * When a file is changed, process all dependents to update `build/`
+	 * directory with the most recent content
+	 */
+	async function onChangedFile(/** @type {Ctx} */ ctx, /** @type {string} */ inputFile) {
+		FileQueue.splice(0, FileQueue.length)
+		const inputFileUri = path.relative(ctx.defaults.rootDir, inputFile)
+
+		if (
+			inputFileUri.startsWith(
+				path.relative(ctx.defaults.rootDir, ctx.defaults.contentDir),
+			)
+		) {
+			FileQueue.push(inputFile)
+		} else {
+			await addAllContentFilesToFileQueue(ctx)
+		}
+	}
 }
 
 export async function commandBuild(/** @type {Ctx} */ ctx) {
@@ -281,7 +298,7 @@ export async function commandBuild(/** @type {Ctx} */ ctx) {
 		await fsClearBuildDirectory(ctx)
 	}
 	await fsRegisterHandlebarsHelpers(ctx)
-	await addAllToFileQueue(ctx)
+	await addAllContentFilesToFileQueue(ctx)
 	await iterateFileQueueByWhileLoop(ctx)
 	await fsCopyStaticFiles(ctx)
 	consola.success('Done.')
@@ -304,14 +321,19 @@ async function iterateFileQueueByCallback(
 	/** @type {Ctx} */ ctx,
 	{ onEmptyFileQueue = /** @type {() => void | Promise<void>} */ () => {} } = {},
 ) {
+	let lastCallbackWasEmpty = false
 	await cb()
 
 	async function cb() {
 		if (FileQueue.length > 0) {
 			await handleContentFile(ctx, FileQueue[0])
 			FileQueue.splice(0, 1)
+			lastCallbackWasEmpty = false
 		} else {
-			await onEmptyFileQueue()
+			if (!lastCallbackWasEmpty) {
+				await onEmptyFileQueue()
+				lastCallbackWasEmpty = true
+			}
 		}
 
 		setImmediate(cb)
@@ -337,31 +359,29 @@ async function handleContentFile(
 		contentForm.slice(0, contentForm.indexOf('/'))
 	)
 
-	const entrypointFile = await utilGetEntrypointFromInputUri(ctx, inputFile)
-	const entrypointUri = path.relative(ctx.defaults.rootDir, entrypointFile)
-	const rhoJs = await utilExtractRhoJs(ctx, entrypointFile)
-	const outputUri = await inputUriToOutputUri(
+	const entrypointUri = await utilGetEntrypointFromInputUri(ctx, inputFile)
+	const rhoJs = await utilExtractRhoJs(ctx, entrypointUri)
+	const outputUri = await convertInputUriToOutputUri(
 		ctx,
 		inputUri,
 		rhoJs,
-		entrypointFile,
+		entrypointUri,
 		contentForm,
 	)
-	const outputFile = path.join(ctx.defaults.outputDir, outputUri)
 
 	const page = {
 		inputFile,
-		outputFile,
-		entrypointFile,
 		inputUri,
 		outputUri,
 		entrypointUri,
 		contentForm,
 		rhoJs,
 	}
-	if (inputFile != entrypointFile) {
+
+	if (inputUri != entrypointUri) {
 		await handleNonEntrypoint(ctx, page)
-	} else if (entrypointFile) {
+	} else if (entrypointUri) {
+		// TODO: handle entrypoint in watch mode?
 		await handleEntrypoint(ctx, page)
 	} else {
 		consola.warn(`No content file found for ${inputUri}`)
@@ -369,22 +389,26 @@ async function handleContentFile(
 }
 
 async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
-	if (!page.entrypointFile || !page.entrypointUri)
-		throw new Error('No entrypoint values found.')
-
-	if (page.outputUri.includes('index.css')) {
-		console.log(page)
-	}
-
-	const lastModified = (await fs.stat(page.entrypointFile)).mtimeMs
+	const lastModified = (
+		await fs.stat(path.join(ctx.defaults.rootDir, page.entrypointUri))
+	).mtimeMs
 	if (Cache[page.entrypointUri]?.lastModified >= lastModified && !ctx.options.noCache) {
 		consola.log(`Using cached ${page.entrypointUri}...`)
 		return
 	}
 
 	consola.log(`Processing ${page.entrypointUri}...`)
-	if (page.entrypointFile?.endsWith('.md')) {
-		let markdown = await fs.readFile(page.entrypointFile, 'utf-8')
+	if (
+		// prettier-ignore
+		page.inputFile.includes('/_') ||
+		page.inputFile.includes('_/')
+	) {
+		// Do not copy file.
+	} else if (page.entrypointUri.endsWith('.md')) {
+		let markdown = await fs.readFile(
+			path.join(ctx.defaults.rootDir, page.entrypointUri),
+			'utf-8',
+		)
 		const { html, frontmatter } = (() => {
 			let frontmatter = {}
 			markdown = markdown.replace(/^\+\+\+$(.*)\+\+\+$/ms, (_, toml) => {
@@ -395,7 +419,7 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 			return {
 				html: MarkdownItInstance.render(markdown),
 				frontmatter: ctx.config.validateFrontmatter(
-					page.entrypointFile,
+					path.join(ctx.defaults.rootDir, page.entrypointUri),
 					frontmatter,
 					page.contentForm,
 				),
@@ -417,22 +441,37 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 			__inputUri: page.entrypointUri,
 		})
 
-		await fs.mkdir(path.dirname(page.outputFile), { recursive: true })
-		await fs.writeFile(page.outputFile, templatedHtml)
+		const outputFile = path.join(ctx.defaults.outputDir, page.outputUri)
+		await fs.mkdir(path.dirname(outputFile), { recursive: true })
+		await fs.writeFile(outputFile, templatedHtml)
 		consola.log(`  -> Written to ${page.outputUri}`)
 	} else if (
-		page.entrypointFile?.endsWith('.html') ||
-		page.entrypointFile?.endsWith('.xml')
+		page.entrypointUri.endsWith('.html') ||
+		page.entrypointUri.endsWith('.xml')
 	) {
-		let html = await fs.readFile(page.entrypointFile, 'utf-8')
+		let html = await fs.readFile(
+			path.join(ctx.defaults.rootDir, page.entrypointUri),
+			'utf-8',
+		)
 		if (page.rhoJs.GenerateSlugMapping) {
-			const slugMap = (await page.rhoJs?.GenerateSlugMapping(ctx)) ?? []
+			const slugMap = (await page.rhoJs.GenerateSlugMapping(ctx)) ?? []
+			const originalOutputUri = page.outputUri
 			for (const slug of slugMap) {
-				const data = (await page.rhoJs?.GenerateTemplateVariables?.(ctx)) ?? {}
+				const data =
+					(await page.rhoJs?.GenerateTemplateVariables?.(ctx, {
+						slug: slug.slug,
+						count: slug.count,
+					})) ?? {}
+				console.log(page.outputUri)
+				page.outputUri = path.join(
+					path.dirname(originalOutputUri),
+					slug.slug,
+					'index.html',
+				)
 				await writeHtmlEndpoint(data)
 			}
 		} else {
-			const data = (await page.rhoJs?.GenerateTemplateVariables?.(ctx)) ?? {}
+			const data = (await page.rhoJs?.GenerateTemplateVariables?.(ctx, {})) ?? {}
 			await writeHtmlEndpoint(data)
 		}
 
@@ -462,8 +501,9 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 				__inputUri: page.entrypointUri,
 			})
 
-			await fs.mkdir(path.dirname(page.outputFile), { recursive: true })
-			await fs.writeFile(page.outputFile, templatedHtml)
+			const outputFile = path.join(ctx.defaults.outputDir, page.outputUri)
+			await fs.mkdir(path.dirname(outputFile), { recursive: true })
+			await fs.writeFile(outputFile, templatedHtml)
 			consola.log(`  -> Written to ${page.outputUri}`)
 		}
 	}
@@ -475,27 +515,17 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 }
 
 async function handleNonEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
-	if (page.inputFile.endsWith('.rho.js')) {
-		const maybeEntrypoint = page.inputFile.slice(
-			0,
-			page.inputFile.length - '.rho.js'.length,
-		)
-
-		try {
-			await fs.stat(maybeEntrypoint)
-			return maybeEntrypoint
-		} catch (err) {
-			if (err.code === 'ENOENT') {
-				throw new Error(
-					`Expected to find entrypoint ${path.basename(maybeEntrypoint)} adjacent to JavaScript file: ${page.inputFile}`,
-				)
-			} else {
-				throw err
-			}
-		}
+	if (
+		page.inputFile.includes('/_') ||
+		page.inputFile.includes('_/') ||
+		path.parse(page.inputFile).name.endsWith('_') ||
+		page.inputFile.endsWith('.rho.js')
+	) {
+		// Do not copy file.
 	} else {
-		await fs.mkdir(path.dirname(page.outputFile), { recursive: true })
-		await fs.copyFile(page.inputFile, page.outputFile)
+		const outputFile = path.join(ctx.defaults.outputDir, page.outputUri)
+		await fs.mkdir(path.dirname(outputFile), { recursive: true })
+		await fs.copyFile(page.inputFile, outputFile)
 	}
 }
 
@@ -523,15 +553,19 @@ async function fsPopulateFileMap(/** @type {Ctx} */ ctx) {
 	async function walk(/** @type {string} */ dir) {
 		for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
 			if (entry.isDirectory()) {
-				if (entry.name === 'drafts') return // TODO
-
 				const subdir = path.join(entry.parentPath, entry.name)
 				await walk(subdir)
 			} else if (entry.isFile()) {
 				const inputFile = path.join(entry.parentPath, entry.name)
 				const inputUri = path.relative(ctx.defaults.rootDir, inputFile)
-				const entrypointFile = await utilGetEntrypointFromInputUri(ctx, inputFile)
-				const outputUri = await inputUriToOutputUri(ctx, inputUri, entrypointFile)
+				const entrypointUri = await utilGetEntrypointFromInputUri(ctx, inputFile)
+				const rhoJs = await utilExtractRhoJs(ctx, entrypointUri)
+				const outputUri = await convertInputUriToOutputUri(
+					ctx,
+					inputUri,
+					rhoJs,
+					entrypointUri,
+				)
 				FileMap.set(outputUri, inputFile)
 			}
 		}
@@ -571,13 +605,11 @@ async function fsRegisterHandlebarsHelpers(/** @type {Ctx} */ ctx) {
 	ctx.singletons.handlebars = handlebars
 }
 
-async function addAllToFileQueue(/** @type {Ctx} */ ctx) {
+async function addAllContentFilesToFileQueue(/** @type {Ctx} */ ctx) {
 	await walk(ctx.defaults.contentDir)
 	async function walk(/** @type {string} */ dir) {
 		for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
 			if (entry.isDirectory()) {
-				if (entry.name === 'drafts') return // TODO
-
 				const subdir = path.join(dir, entry.name)
 				await walk(subdir)
 			} else if (entry.isFile()) {
@@ -588,25 +620,11 @@ async function addAllToFileQueue(/** @type {Ctx} */ ctx) {
 	}
 }
 
-/**
- * When a file is changed, process all dependents to update `build/`
- * directory with the most recent content
- */
-async function onChangedFile(/** @type {Ctx} */ ctx, /** @type {string} */ inputFile) {
-	FileQueue.splice(0, FileQueue.length)
-	const inputFileUri = path.relative(ctx.defaults.rootDir, inputFile)
-	if (inputFileUri.startsWith('content/')) {
-		FileQueue.push(inputFile)
-	} else {
-		await addAllToFileQueue(ctx)
-	}
-}
-
-async function inputUriToOutputUri(
+async function convertInputUriToOutputUri(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputUri,
 	/** @type {RhoJs} */ rhoJs,
-	/** @type {string | null} */ entrypointFile,
+	/** @type {string | null} */ entrypointUri,
 	/** @type {ContentForm} */ contentForm,
 ) {
 	const inputFile = path.join(ctx.defaults.rootDir, inputUri)
@@ -619,20 +637,20 @@ async function inputUriToOutputUri(
 	const parentDirname = path.basename(path.dirname(inputUri))
 
 	// If `parentDirname` is a "file".
-	if (parentDirname.includes('.')) {
+	if (parentDirname.includes('.') && parentDirname !== '.') {
 		return path.join(pathPart, path.parse(inputUri).base)
 	} else if (!inputUri.endsWith('.html') && !inputUri.endsWith('.md')) {
-		const relPart = await getRelPart(ctx, inputUri, contentForm)
+		const relPart = await getNewParentDirname(ctx, inputUri, contentForm)
 		return path.join(pathPart, relPart, path.parse(inputUri).base)
 	} else if (path.parse(inputUri).name === parentDirname) {
-		const relPart = await getRelPart(ctx, inputUri, contentForm)
-		return path.join(pathPart, relPart, 'index.html')
+		const parentDirname = await getNewParentDirname(ctx, inputUri, contentForm)
+		return path.join(pathPart, parentDirname, 'index.html')
 	} else {
-		const relPart = await getRelPart(ctx, inputUri, contentForm)
+		const relPart = await getNewParentDirname(ctx, inputUri, contentForm)
 		return path.join(pathPart, relPart, path.parse(inputUri).name + '.html')
 	}
 
-	async function getRelPart(
+	async function getNewParentDirname(
 		/** @type {Ctx} */ ctx,
 		/** @type {string} */ inputUri,
 		/** @type {ContentForm} */ contentForm,
@@ -644,11 +662,11 @@ async function inputUriToOutputUri(
 			return meta.slug
 		}
 
-		if (entrypointFile) {
+		if (entrypointUri) {
 			const frontmatter = await extractContentFileFrontmatter(
 				ctx,
 				inputFile,
-				entrypointFile,
+				entrypointUri,
 				contentForm,
 			)
 			return frontmatter.slug ?? path.basename(path.dirname(inputUri))
@@ -661,10 +679,11 @@ async function inputUriToOutputUri(
 async function extractContentFileFrontmatter(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputFile,
-	/** @type {string} */ entrypointFile,
+	/** @type {string} */ entrypointUri,
 	/** @type {ContentForm} */ contentForm,
 ) {
 	if (!inputFile) return {}
+	const entrypointFile = path.join(ctx.defaults.rootDir, entrypointUri)
 
 	let markdown
 	try {
@@ -696,8 +715,10 @@ async function utilExtractLayout(/** @type {Ctx} */ ctx, /** @type {any[]} */ la
 
 async function utilExtractRhoJs(
 	/** @type {Ctx} */ ctx,
-	/** @type {string} */ entrypointFile,
+	/** @type {string} */ entrypointUri,
 ) {
+	const entrypointFile = path.join(ctx.defaults.rootDir, entrypointUri)
+
 	try {
 		const javascriptFile = path.join(
 			path.dirname(entrypointFile),
@@ -715,23 +736,31 @@ async function utilGetEntrypointFromInputUri(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputFile,
 ) {
-	const dirname = path.basename(path.dirname(inputFile))
-	const files = [
-		path.join(path.dirname(inputFile), 'index.md'),
-		path.join(path.dirname(inputFile), 'index.html'),
-		path.join(path.dirname(inputFile), 'index.xml'),
-		path.join(path.dirname(inputFile), dirname + '.md'),
-		path.join(path.dirname(inputFile), dirname + '.html'),
-		path.join(path.dirname(inputFile), dirname + '.xml'),
-		path.join(path.dirname(inputFile), dirname),
+	const inputUri = path.relative(ctx.defaults.contentDir, inputFile)
+	const dirname = path.basename(path.dirname(inputUri))
+	// prettier-ignore
+	let fileUris = [
+		'index.md',
+		'index.html',
+		'index.xml',
 	]
+	if (dirname !== '.') {
+		// prettier-ignore
+		fileUris = fileUris.concat([
+			dirname + '.md',
+			dirname + '.html',
+			dirname + '.xml',
+			dirname,
+		])
+	}
 
 	// Search for a valid content file in the same directory.
-	for (const file of files) {
-		if (['.md', '.html', '.xml'].includes(path.parse(file).ext)) {
+	for (const uri of fileUris) {
+		const file = path.join(path.dirname(inputFile), uri)
+		if (['.md', '.html', '.xml'].includes(path.parse(uri).ext)) {
 			try {
 				await fs.stat(file)
-				return file
+				return path.relative(ctx.defaults.rootDir, file)
 			} catch {}
 		}
 	}

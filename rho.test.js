@@ -79,7 +79,43 @@ afterEach(async () => {
 	await fs.rm(TestDataDir, { recursive: true, force: true })
 })
 
-suite('entrypoint files are found', async () => {
+suite('.md entrypoint works', async () => {
+	test('index.md', async () => {
+		await writeFiles({
+			'./content/index.md': dedent`
+					+++
+					title = 'Title'
+					author = 'First Last'
+					date = 2000-01-01
+					+++
+					water`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/index.html': /<p>water/,
+		})
+	})
+
+	// TODO: should error
+	// test('index.md with slug', async () => {
+	// 	await writeFiles({
+	// 		'./content/index.md': dedent`
+	// 				+++
+	// 				title = 'Title'
+	// 				author = 'First Last'
+	// 				date = 2000-01-01
+	// 				slug = 'my-slug'
+	// 				+++
+	// 				water`,
+	// 	})
+	// 	await commandBuild(Ctx)
+
+	// 	await assertFiles({
+	// 		'./build/my-slug/index.html': /<p>water/,
+	// 	})
+	// })
+
 	test('test/index.md', async () => {
 		await writeFiles({
 			'./content/test/index.md': dedent`
@@ -88,30 +124,12 @@ suite('entrypoint files are found', async () => {
 					author = 'First Last'
 					date = 2000-01-01
 					+++
-					water`,
+					Bravo`,
 		})
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/test/index.html': /<p>water/,
-		})
-	})
-
-	test('test/index.md with slug', async () => {
-		await writeFiles({
-			'./content/test/index.md': dedent`
-					+++
-					title = 'Title'
-					author = 'First Last'
-					date = 2000-01-01
-					slug = 'my-slug'
-					+++
-					water`,
-		})
-		await commandBuild(Ctx)
-
-		await assertFiles({
-			'./build/my-slug/index.html': /<p>water/,
+			'./build/test/index.html': /<p>Bravo/,
 		})
 	})
 
@@ -129,6 +147,24 @@ suite('entrypoint files are found', async () => {
 
 		await assertFiles({
 			'./build/test/index.html': /<p>Bravo/,
+		})
+	})
+
+	test('test/index.md with slug', async () => {
+		await writeFiles({
+			'./content/test/index.md': dedent`
+					+++
+					title = 'Title'
+					author = 'First Last'
+					date = 2000-01-01
+					slug = 'my-slug'
+					+++
+					Bravo`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/my-slug/index.html': /<p>Bravo/,
 		})
 	})
 
@@ -151,34 +187,47 @@ suite('entrypoint files are found', async () => {
 	})
 })
 
-suite('html tests', async () => {
-	test('test/index.html', async () => {
+suite('.html entrypoint works', async () => {
+	test('index.html', async () => {
 		await writeFiles({
-			'./content/test/index.html': dedent`
+			'./content/index.html': dedent`
 					<p>water</p>`,
 		})
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/test/index.html': /<p>water/,
+			'./build/index.html': /<p>water/,
 		})
 	})
 
-	test('test/index.html with slug', async () => {
+	// TODO: should error
+	// test('index.html with slug', async () => {
+	// 	await writeFiles({
+	// 		'./content/index.html': dedent`
+	// 				<p>water</p>`,
+	// 		'./content/index.html.rho.js': dedent`
+	// 				export function Meta() {
+	// 					return {
+	// 						slug: 'my-slug'
+	// 					}
+	// 				}`,
+	// 	})
+	// 	await commandBuild(Ctx)
+
+	// 	await assertFiles({
+	// 		'./build/my-slug/index.html': /<p>water/,
+	// 	})
+	// })
+
+	test('test/index.html', async () => {
 		await writeFiles({
 			'./content/test/index.html': dedent`
-					<p>water</p>`,
-			'./content/test/index.html.rho.js': dedent`
-					export function Meta() {
-						return {
-							slug: 'my-slug'
-						}
-					}`,
+					<p>Bravo</p>`,
 		})
 		await commandBuild(Ctx)
 
 		await assertFiles({
-			'./build/my-slug/index.html': /<p>water/,
+			'./build/test/index.html': /<p>Bravo/,
 		})
 	})
 
@@ -191,6 +240,24 @@ suite('html tests', async () => {
 
 		await assertFiles({
 			'./build/test/index.html': /<p>Bravo/,
+		})
+	})
+
+	test('test/index.html with slug', async () => {
+		await writeFiles({
+			'./content/test/index.html': dedent`
+					<p>Bravo</p>`,
+			'./content/test/index.html.rho.js': dedent`
+					export function Meta() {
+						return {
+							slug: 'my-slug'
+						}
+					}`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/my-slug/index.html': /<p>Bravo/,
 		})
 	})
 
@@ -209,6 +276,141 @@ suite('html tests', async () => {
 
 		await assertFiles({
 			'./build/my-slug/index.html': /<p>Bravo/,
+		})
+	})
+})
+
+suite('content is correctly (not-)?copied', async () => {
+	test('index.html and style.css are copied', async () => {
+		await writeFiles({
+			'./content/index.html': dedent`
+					<p>water</p>`,
+			'./content/style.css': dedent`
+					p { font-size: 16px; }`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/index.html': /<p>water/,
+			'./build/style.css': /font-size: 16px/,
+		})
+	})
+
+	test('index.html.rho.js is skipped', async () => {
+		await writeFiles({
+			'./content/index.html': dedent`
+					<p>water</p>`,
+			'./content/index.html.rho.js': dedent`
+					export function Meta() {}`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/index.html': /<p>water/,
+			'./build/index.html.rho.js': null,
+		})
+	})
+
+	test('test/test.html.rho.js is skipped', async () => {
+		await writeFiles({
+			'./content/test/test.html': dedent`
+					<p>water</p>`,
+			'./content/test/test.html.rho.js': dedent`
+					export function Meta() {}`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/test/index.html': /<p>water/,
+			'./build/test/index.html.rho.js': null,
+		})
+	})
+
+	test('test.html/test.html.rho.js is skipped', async () => {
+		await writeFiles({
+			'./content/test.html/test.html': dedent`
+					<p>water</p>`,
+			'./content/test.html/test.html.rho.js': dedent`
+					export function Meta() {}`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/test.html': /<p>water/,
+			'./build/test.html.rho.js': null,
+		})
+	})
+
+	test('style_.css is skipped', async () => {
+		await writeFiles({
+			'./content/index.html': dedent`
+					<p>water</p>`,
+			'./content/style_.css': dedent`
+					p { font-size: 16px; }`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/index.html': /<p>water/,
+			'./build/style_.css': null,
+		})
+	})
+
+	test('_style.css is skipped', async () => {
+		await writeFiles({
+			'./content/index.html': dedent`
+					<p>water</p>`,
+			'./content/_style.css': dedent`
+					p { font-size: 16px; }`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/index.html': /<p>water/,
+			'./build/_style.css': null,
+		})
+	})
+
+	test('dir_/* is skipped', async () => {
+		await writeFiles({
+			'./content/dir_/index.html': dedent`
+					<p>water</p>`,
+			'./content/dir_/style.css': dedent`
+					p { font-size: 16px; }`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/dir_/index.html': null,
+			'./build/dir_/style.css': null,
+		})
+	})
+
+	test('_dir/* is skipped', async () => {
+		await writeFiles({
+			'./content/_dir/index.html': dedent`
+					<p>water</p>`,
+			'./content/_dir/style.css': dedent`
+					p { font-size: 16px; }`,
+		})
+		await commandBuild(Ctx)
+
+		await assertFiles({
+			'./build/_dir/index.html': null,
+			'./build/_dir/style.css': null,
+		})
+	})
+})
+
+suite('rho.js', async () => {
+	test('index.html.rho.js throws without corresponding index.html', async () => {
+		await writeFiles({
+			'./content/index.html.rho.js': dedent`
+					export function Meta() {}`,
+		})
+
+		assertThrownErrorWithMessage('No entrypoint found for file', async () => {
+			await commandBuild(Ctx)
 		})
 	})
 })
@@ -235,29 +437,54 @@ async function writeFiles(/** @type {Record<string, string>} */ fileObject) {
 }
 
 async function assertFiles(/** @type {Record<string, string>} */ assertObject) {
-	for (const filename in assertObject) {
-		await test(`File: ${filename}`, async (t) => {
-			try {
-				await fs.stat(filename)
-			} catch (err) {
-				if (err.code === 'ENOENT') {
-					assert.fail(`File ${filename} does not exist`)
-				} else {
-					throw err
-				}
-			}
-
-			const content = await fs.readFile(filename, 'utf8')
-
-			if (typeof assertObject[filename] === 'string') {
-				assert.equal(content, assertObject[filename].trim())
-			} else if (assertObject[filename] instanceof RegExp) {
-				assert.ok(assertObject[filename].test(content))
+	for (const [filename, assertValue] of Object.entries(assertObject)) {
+		let fileExists = true
+		try {
+			await fs.stat(filename)
+			fileExists = true
+		} catch (err) {
+			if (err.code === 'ENOENT') {
+				fileExists = false
 			} else {
-				throw new Error(`User-supplied assert object could not be evaluated`)
+				throw err
 			}
-		})
+		}
 
-		break
+		if (assertValue !== null) {
+			if (fileExists) {
+				const content = await fs.readFile(filename, 'utf8')
+				if (typeof assertValue === 'string') {
+					assert.equal(content, assertValue.trim())
+				} else if (assertValue instanceof RegExp) {
+					assert.ok(assertValue.test(content))
+				} else {
+					throw new Error(`User-supplied assert object could not be evaluated`)
+				}
+			} else {
+				assert.fail(`File ${filename} does not exist (but should)`)
+			}
+		} else {
+			if (fileExists) {
+				assert.fail(`File ${filename} does exist (but should not)`)
+			}
+		}
+	}
+}
+
+async function assertThrownErrorWithMessage(
+	/** @type {string} */ errorMessage,
+	/** @type {() => void | Promise<void>} */ fn,
+) {
+	try {
+		await fn(Ctx)
+		assert.fail('Expected an error to be thrown (nothing was thrown)')
+	} catch (err) {
+		if (err instanceof Error) {
+			if (!err.message.includes(errorMessage)) {
+				assert.fail(`Expected thrown error to include the string: ${errorMessage}`)
+			}
+		} else {
+			assert.fail('Expected an error to be thrown (a non-error was thrown')
+		}
 	}
 }

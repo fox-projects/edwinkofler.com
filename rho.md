@@ -4,9 +4,9 @@ Wedding myself to a third-party static site generator solution limits the degree
 
 ## Plans
 
+- Make `FileList` a `DirList`
 - `new` subcommand for making new templates
-- Have option to run via dev server (better than `browser-sync`, more options?)
-- Dependency: Replace `handlebars` with `liquidjs`
+- Custom dev server
 - Dependency: Replace `browser-sync` with custom solution
 - Linter to always ensure trailing slash for local URLs
 
@@ -38,10 +38,11 @@ If a file has the same name as it's parent directory (and has a dot), the parent
 
 ### 2. Non-entrypoint files
 
-These files are files associated with the entrypoint. Sometimes they are copied to the build directory; other times, they are not. They can include:
+These files are files associated with the entrypoint. They are copied to their respective output directory, unless the file matches:
 
-- `style.css`
-- `something.rho.js`
+- `*.rho.js`
+- `_*`
+- `*_`
 
 #### Entrypoint File Formats
 
