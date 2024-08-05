@@ -6,27 +6,38 @@
 			"request": "launch",
 			"name": "Run Build",
 			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
+			"runtimeArgs": ["--import", "./rho.register.js"],
+			"program": "${workspaceFolder}/rho.js",
 			"args": ["build"],
-			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/rho.js"
+			"skipFiles": ["<node_internals>/**"]
 		},
 		{
 			"type": "node",
 			"request": "launch",
 			"name": "Run Watch",
 			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
+			"runtimeArgs": ["--import", "./rho.register.js"],
 			"args": ["watch"],
-			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/rho.js"
+			"program": "${workspaceFolder}/rho.js",
+			"skipFiles": ["<node_internals>/**"]
 		},
 		{
 			"type": "node",
 			"request": "launch",
 			"name": "Run Test",
 			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
-			"skipFiles": ["<node_internals>/**"],
+			"runtimeArgs": ["--import", "./rho.register.js"],
 			"program": "${workspaceFolder}/rho.test.js",
-			"args": ["--test-only"]
+			"skipFiles": ["<node_internals>/**"]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Run Test Only",
+			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
+			"runtimeArgs": ["--import", "./rho.register.js", "--test-only"],
+			"program": "${workspaceFolder}/rho.test.js",
+			"skipFiles": ["<node_internals>/**"]
 		}
 	]
 }

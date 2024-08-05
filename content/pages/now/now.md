@@ -1,6 +1,6 @@
 +++
 title = 'Now'
-layout = 'post.hbs'
+layout = 'markdown.hbs'
 +++
 
 After having attended [El Camino College](https://www.elcamino.edu) for several years now, I'm now applying for full-time computer engineering roles.
