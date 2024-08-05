@@ -1,52 +1,84 @@
-# Rho
+# Rho <!-- omit from toc -->
 
 Wedding myself to a third-party static site generator solution limits the degree to which I can customize my website. Rho solves that because it's my software.
 
-## Plans
+## Plans <!-- omit from toc -->
 
-- Make `FileList` a `DirList`
+- Made sidebar header responsive
+- Fix `drafts` being copied over
+- Do not set `layout` in `<file>.md`
+- Download fonts and self-host
+- Check for `.html.js`, `.md.js`, ask if meant ".html.rho.js"
+- Fix "XML" file being an entrypoint. ie, all files should be able to be procesed with a ".rho.js" file.
+- Improve logging (add verbose mode)
+- Be able to build only certain files/directory matching a glob
 - `new` subcommand for making new templates
-- Custom dev server
-- Dependency: Replace `browser-sync` with custom solution
-- Linter to always ensure trailing slash for local URLs
+- later: more tests for `.rho.js`
+- later: Make `FileList` a `DirList` (later)
+- later: Custom dev server
+- later: Replace `browser-sync` with custom solution
+- later: Linter to always ensure trailing slash for local URLs
 
-## Introduction
+## Introduction <!-- omit from toc -->
+
+- [Entrypoint Content Files](#entrypoint-content-files)
+  - [File Formats](#file-formats)
+    - [HTML Files](#html-files)
+    - [Markdown Files](#markdown-files)
+    - [XML Files](#xml-files)
+  - [Non-entrypoint Content Files](#non-entrypoint-content-files)
+- [JavaScript Customization](#javascript-customization)
+- [Directory Structure](#directory-structure)
+  - [`build/`](#build)
+  - [`content/`](#content)
+    - [`content/pages/`](#contentpages)
+    - [`content/posts/`](#contentposts)
+    - [`content/til/`](#contenttil)
+  - [`layouts/`](#layouts)
+  - [`partials/`](#partials)
+  - [`static/`](#static)
 
 Rho is a static site generator. Conventionally, it reads input files from `content/`; for each file, it is processed, then written to `build/`. When processing each file, it transforms both its path and content.
 
-## Content
+When walking the content directory, every directory is associated with either a route or file. For each directory, there are two possible types of files: Entrypoint and non-entrypoint files.
 
-When walking the content directory, every directory is associated with either a route or file. For each directory, there are two possible types of files:
+## Entrypoint Content Files
 
-### 1. Entrypoint Files
+These are similar to `index.html` when serving files over the web, or `page.js` in a Next.js project. They define the content generated at a particular route. There are three way to define one:
 
-These are similar to `index.js` in, say, a Next project.
+- `/content/index.html` -> `/build/index.html`
+- `/content/about/about.md` -> `/build/about/index.html`
+- `/content/index.html/index.html` -> `/build/index.html`
 
-#### Entrypoint file possibilities
+The first way is required. The second way makes it easier to edit files in IDEs. The third way makes it easier to differently group files that are all under the same route.
 
-The first is no surprise; if a file's name (excluding file extension) is `index`, it is considered an entrypoint file.
+### File Formats
 
-- `/pages/index.html` -> `/index.html`
+The following formats are supported:
 
-If a file (minus its extension) has the same name as it's parent directory, it's name is changed to `index`. This makes keeping track of files in editors easier:
+#### HTML Files
 
-- `/pages/about/about.md` -> `/about/index.html`
+These are processed with the templating engine [Handlebars](https://handlebarsjs.com).
 
-If a file has the same name as it's parent directory (and has a dot), the parent directory is removed. This makes it easy to group logic associated with a particular non-directory route:
+#### Markdown Files
 
-- `/pages/index.html/index.html` -> `/index.html`
+Markdown files support the following features:
 
-### 2. Non-entrypoint files
+- Syntax highlighting (via [Shiki](https://shiki.style))
+- Emoji conversion
+- KaTeX
+
+#### XML Files
+
+TODO: Fix this
+
+### Non-entrypoint Content Files
 
 These files are files associated with the entrypoint. They are copied to their respective output directory, unless the file matches:
 
 - `*.rho.js`
 - `_*`
 - `*_`
-
-#### Entrypoint File Formats
-
-For now, `.html`, `xml`, and `.md` files are supported.
 
 ## JavaScript Customization
 

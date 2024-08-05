@@ -50,7 +50,7 @@ export const ctx = Object.freeze({
 			/** @type {ContentForm} */ contentForm,
 		) {
 			if (contentForm === 'posts') {
-				return 'post.hbs'
+				return 'markdown.hbs'
 			}
 
 			return null

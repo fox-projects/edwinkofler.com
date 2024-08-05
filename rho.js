@@ -244,9 +244,11 @@ async function commandWatch(/** @type {Ctx} */ ctx) {
 	watcher
 		.on('add', async (inputFile) => {
 			await onChangedFile(ctx, inputFile)
+			await fsCopyStaticFiles(ctx)
 		})
 		.on('change', async (inputFile) => {
 			await onChangedFile(ctx, inputFile)
+			await fsCopyStaticFiles(ctx)
 		})
 		.on('error', (error) => {
 			consola.error(`Watcher error: ${error}`)
