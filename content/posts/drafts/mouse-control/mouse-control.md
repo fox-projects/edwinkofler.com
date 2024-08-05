@@ -5,6 +5,7 @@ author = "Edwin Kofler"
 date = 2023-03-30T15:13:14-07:00
 categories = []
 tags = []
+draft = true
 +++
 
 Similar to [Semantic Hotkeys](/posts/semantic-hotkeys), this posts analyses how mouse controls are used in complex applications.

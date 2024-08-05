@@ -8,24 +8,22 @@ function promptAnswer() {
 	promptEl.textContent = `Where is the letter ${letter}?`
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-	const alphabetEl = document.querySelector('.alphabet')
+const alphabetEl = document.querySelector('.alphabet')
 
-	for (const letter of alphabet) {
+for (const letter of alphabet) {
+	const letterEl = document.createElement('div')
+	letterEl.classList.add('letter')
+	letterEl.setAttribute('data-letter', letter)
+	letterEl.textContent = letter
+	alphabetEl.appendChild(letterEl)
+
+	if (['D', 'L', 'T'].includes(letter)) {
 		const letterEl = document.createElement('div')
-		letterEl.classList.add('letter')
-		letterEl.setAttribute('data-letter', letter)
-		letterEl.textContent = letter
 		alphabetEl.appendChild(letterEl)
-
-		if (['D', 'L', 'T'].includes(letter)) {
-			const letterEl = document.createElement('div')
-			alphabetEl.appendChild(letterEl)
-		}
 	}
+}
 
-	promptAnswer()
-})
+promptAnswer()
 
 const alphabetMainEl = document.querySelector('.alphabet-main')
 alphabetMainEl.addEventListener('click', (event) => {

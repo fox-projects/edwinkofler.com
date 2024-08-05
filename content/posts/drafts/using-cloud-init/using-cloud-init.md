@@ -5,6 +5,7 @@ author = "Edwin Kofler"
 date = 2020-01-27T17:58:23-08:00
 categories = []
 tags = []
+draft = true
 +++
 
 I found myself needing to use cloud-init to automate the configuration of virtual machines and machine containers. I wanted to login information and ssh authentication for pre-defined users. I remember being rather confused and frusterated with my initial (and future) dealings with cloud-init. This guide will show you how to use it, starting from step zero, and some silly hung-ups I experienced.

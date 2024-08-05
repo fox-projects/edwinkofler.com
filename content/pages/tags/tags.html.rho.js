@@ -1,5 +1,5 @@
-export async function GenerateTemplateVariables(Config, Helpers) {
-	const posts = await Helpers.getPosts(Config)
+export async function GenerateTemplateVariables(ctx) {
+	const posts = await ctx.helpers.getPosts(ctx.config)
 
 	let tags = {}
 	for (const post of posts) {

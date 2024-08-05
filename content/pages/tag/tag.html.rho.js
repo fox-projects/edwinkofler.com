@@ -1,5 +1,5 @@
 export async function GenerateSlugMapping(ctx) {
-	const posts = await Helpers.getPosts(ctx.config)
+	const posts = await ctx.helpers.getPosts(ctx.config)
 
 	let tags = {}
 	for (const post of posts) {
@@ -21,8 +21,8 @@ export async function GenerateSlugMapping(ctx) {
 	return tagsArr
 }
 
-export async function GenerateTemplateVariables(Config, Helpers, { slug, count }) {
-	const posts = await Helpers.getPosts(Config)
+export async function GenerateTemplateVariables(ctx, { slug, count }) {
+	const posts = await ctx.helpers.getPosts(ctx.config)
 
 	let filteredPosts = []
 	for (const post of posts) {

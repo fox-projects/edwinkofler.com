@@ -9,7 +9,7 @@ export function Header() {
 		title: 'Alphabet',
 		content: `
 			<link rel="stylesheet" href="./alphabet.css" />
-			<script src="./alphabet.js"></script>
+			<script defer src="./alphabet.js"></script>
 		`,
 	}
 }
