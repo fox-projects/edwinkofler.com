@@ -4,22 +4,16 @@ Wedding myself to a third-party static site generator solution limits the degree
 
 ## Plans <!-- omit from toc -->
 
-- Made sidebar header responsive
-- Fix `drafts` being copied over
-- Do not set `layout` in `<file>.md`
-- Download fonts and self-host
-- Check for `.html.js`, `.md.js`, ask if meant ".html.rho.js"
-- Fix "XML" file being an entrypoint. ie, all files should be able to be procesed with a ".rho.js" file.
-- Improve logging (add verbose mode)
-- Be able to build only certain files/directory matching a glob
 - Fix "cache" not working
 - When saving "global.css", first generate page that is currently being viewed
-- "Snippets", "Recipes", "Thoughts"
-- `new` subcommand for making new templates
+- Be able to build only certain files/directory matching a glob
+- later: treat entrypoint and non-entrypoint the same
+  - fix "XML" file being an entrypoint. ie, all files should be able to be procesed with a ".rho.js" file.
+- later: Improve logging (add verbose mode)
+- later: download fonts and self-host
 - later: more tests for `.rho.js`
 - later: Make `FileList` a `DirList` (later)
-- later: Custom dev server
-- later: Replace `browser-sync` with custom solution
+- later: Custom dev server / replace `browser-sync` with custom solution
 - later: Linter to always ensure trailing slash for local URLs
 
 ## Introduction <!-- omit from toc -->

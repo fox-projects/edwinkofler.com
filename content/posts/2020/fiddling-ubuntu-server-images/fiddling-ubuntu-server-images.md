@@ -1,10 +1,10 @@
 +++
-title = "Fiddling with Ubuntu Server Images"
-slug = "fiddling-with-ubuntu-server-images"
-author = "Edwin Kofler"
+title = 'Fiddling with Ubuntu Server Images'
+slug = 'fiddling-with-ubuntu-server-images'
+author = 'Edwin Kofler'
 date = 2020-02-23T13:23:00-08:00
-categories = ["linux"]
-tags = ["linux", "ubuntu"]
+categories = ['linux']
+tags = ['linux', 'ubuntu']
 +++
 
 Oddly enough, the latest version of Ubuntu Server failed to install on my MacBook Pro (2012). It's due to some bug in `efibootmgr`. Ubuntu Server Installer uses `efibootmgr` to create some NVRAM variables for the UEFI boot process. Unfortunately, `efibootmgr` failed right in the middle and printed an empty string to stderr, abruptly ending the installation process.

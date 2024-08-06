@@ -1,10 +1,10 @@
 +++
-title = "Render LaTeX with KaTex in Hugo Blog"
-slug = "render-latex-with-katex-in-hugo-blog"
-author = "Edwin Kofler"
+title = 'Render LaTeX with KaTex in Hugo Blog'
+slug = 'render-latex-with-katex-in-hugo-blog'
+author = 'Edwin Kofler'
 date = 2018-09-15T11:26:16-07:00
-categories = ["update", "tutorial"]
-tags = ["LaTeX", "KaTeX"]
+categories = ['update', 'tutorial']
+tags = ['LaTeX', 'KaTeX']
 +++
 
 

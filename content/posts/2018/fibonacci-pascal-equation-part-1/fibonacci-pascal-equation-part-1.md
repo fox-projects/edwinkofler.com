@@ -3,8 +3,8 @@ title = "Fibonacci Equation for Zth (Nth) Term Using Pascal's Triangle (Part 1 o
 slug = "fibonacci-equation-using-pascals-triangle-part-1"
 author = "Edwin Kofler"
 date = 2018-11-16T10:10:57-08:00
-categories = ["math"]
-tags = ["pascal's triangle", "fibonacci"]
+categories = ['math']
+tags = ["pascal's triangle", 'fibonacci']
 +++
 
 If you're familiar with the intricacies of Pascal's Triangle, see how I did it by going to [part 2](/posts/fibonacci-equation-using-pascals-triangle-part-2/).

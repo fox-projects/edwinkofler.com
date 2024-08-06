@@ -5,7 +5,7 @@
 	"description": "",
 	"author": "Edwin Kofler <edwin@kofler.dev> (https://edwinkofler.com/)",
 	"license": "MPL-2.0",
-	"packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a",
+	"packageManager": "pnpm@9.6.0",
 	"engines": {
 		"node": ">=20.12.0"
 	},
@@ -15,11 +15,13 @@
 		"build": "./rho.js build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules",
 		"dev": "pnpx nodemon --import ./rho.register.js -- ./rho.js",
+		"format:prettier": "pnpm run format:toml",
+		"format:toml": "taplo fmt",
 		"test": "node --import ./rho.register.js ./rho.test.js",
 		"test:only": "node --import ./rho.register.js --test-only ./rho.test.js"
 	},
 	"dependencies": {
-		"@shikijs/markdown-it": "^1.9.0",
+		"@shikijs/markdown-it": "^1.12.1",
 		"browser-sync": "^3.0.2",
 		"chokidar": "^3.6.0",
 		"consola": "^3.2.3",
@@ -30,9 +32,9 @@
 		"listhen": "^1.7.2",
 		"markdown-it": "^14.1.0",
 		"markdown-it-emoji": "^3.0.0",
-		"prettier": "^3.3.2",
-		"shiki": "^1.9.0",
-		"smol-toml": "^1.2.1"
+		"prettier": "^3.3.3",
+		"shiki": "^1.12.1",
+		"smol-toml": "^1.3.0"
 	},
 	"devDependencies": {
 		"@hyperupcall/prettier-config": "^0.7.0",

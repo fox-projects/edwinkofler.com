@@ -1,7 +1,7 @@
 +++
-title = "My Development Philosophy"
-slug = "my-development-philosophy"
-author = "Edwin Kofler"
+title = 'My Development Philosophy'
+slug = 'my-development-philosophy'
+author = 'Edwin Kofler'
 date = 2022-06-16T11:06:07-07:00
 categories = []
 tags = []

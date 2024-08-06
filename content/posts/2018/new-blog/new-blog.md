@@ -1,9 +1,9 @@
 +++
-title = "New Blog"
-slug = "new-blog"
-author = "Edwin Kofler"
+title = 'New Blog'
+slug = 'new-blog'
+author = 'Edwin Kofler'
 date = 2018-09-03T11:52:21-07:00
-categories = ["update"]
+categories = ['update']
 tags = []
 +++
 

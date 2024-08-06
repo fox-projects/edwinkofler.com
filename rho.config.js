@@ -8,6 +8,12 @@ const Dirname = path.dirname(Filename)
 
 import { MarkdownItInstance } from './rho.js'
 
+/**
+ * @typedef {import('./rho.js').Ctx} Ctx
+ *
+ * @typedef {import('./rho.js').Page} Page
+ */
+
 export const ctx = Object.freeze({
 	singletons: {
 		handlebars: /** @type {typeof import('handlebars')} */ (undefined),
@@ -45,11 +51,10 @@ export const ctx = Object.freeze({
 
 			return uri
 		},
-		async getLayout(
-			/** @type {string} */ inputUri,
-			/** @type {ContentForm} */ contentForm,
-		) {
-			if (contentForm === 'posts') {
+		async getLayout(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
+			const uri = path.relative(ctx.defaults.contentDir, page.inputFile)
+
+			if (uri.startsWith('posts/')) {
 				return 'markdown.hbs'
 			}
 
@@ -58,9 +63,10 @@ export const ctx = Object.freeze({
 		validateFrontmatter(
 			/** @type {string} */ inputFile,
 			/** @type {Partial<Frontmatter>} */ frontmatter,
-			/** @type {ContentForm} */ contentForm,
 		) {
-			if (contentForm === 'posts') {
+			const uri = path.relative(ctx.defaults.contentDir, inputFile)
+
+			if (uri.startsWith('posts/')) {
 				for (const requiredProperty of ['title', 'author', 'date']) {
 					if (!(requiredProperty in frontmatter)) {
 						throw new Error(

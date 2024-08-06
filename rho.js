@@ -4,6 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import util from 'node:util'
 import url from 'node:url'
+import readline from 'node:readline'
 
 import prettier from 'prettier'
 import { execa } from 'execa'
@@ -34,8 +35,6 @@ export { consola }
 /**
  * @typedef {typeof _ctx} Ctx
  *
- * @typedef {'pages' | 'posts' | 'thoughts' | 'til'} ContentForm
- *
  * @typedef {'build' | 'watch' | 'serve' | 'check'} Subcommands
  *
  * @typedef {Object} RhoJsMeta
@@ -55,7 +54,6 @@ export { consola }
  * @property {string} inputUri
  * @property {string} outputUri
  * @property {string} entrypointUri
- * @property {ContentForm} contentForm
  * @property {RhoJs} rhoJs
  *
  * @typedef {Object} Frontmatter
@@ -116,7 +114,7 @@ if (
 }
 
 async function main() {
-	const helpText = `${path.basename(Filename)} <build | watch | serve | check> [options]
+	const helpText = `${path.basename(Filename)} <build | watch | serve | check | new> [options]
   Options:
     -h, --help
     --clean
@@ -163,6 +161,8 @@ async function main() {
 		await commandBuild(ctx)
 	} else if (ctx.options.command === 'check') {
 		await commandCheck(ctx)
+	} else if (ctx.options.command === 'new') {
+		await commandNew(ctx)
 	} else {
 		console.error(helpText)
 		consola.error(`Unknown command: ${positionals[0]}`)
@@ -319,6 +319,53 @@ async function commandCheck(/** @type {Ctx} */ ctx) {
 	}
 }
 
+async function commandNew(/** @type {Ctx} */ ctx) {
+	const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+	rl.on('SIGINT', () => {
+		consola.error('Aborting...')
+		rl.close()
+		process.exit(1)
+	})
+	rl.on('SIGCONT', () => {
+		commandNew(ctx)
+	})
+	rl.question[util.promisify.custom] = (/** @type {string} */ query) => {
+		return new Promise((resolve) => {
+			rl.question(query, resolve)
+		})
+	}
+
+	const slug = /** @type {string} */ /** @type {any} */ (
+		await util.promisify(rl.question)(`What is the post slug? `)
+	)
+	const date = new Date()
+		.toISOString()
+		.replace('T', ' ')
+		.replace(/\.[0-9]+Z$/, 'Z')
+	const markdownFile = path.join(
+		ctx.defaults.contentDir,
+		'posts/drafts',
+		`${slug}/${slug}.md`,
+	)
+	await fs.mkdir(path.dirname(markdownFile), { recursive: true })
+	await fs.writeFile(
+		markdownFile,
+		`+++
+title = ''
+slug = '${slug}'
+author = 'Edwin Kofler'
+date = ${date}
+categories = []
+tags = []
+draft = true
++++
+
+`,
+	)
+	rl.close()
+	consola.info(`File created at ${markdownFile}`)
+}
+
 async function iterateFileQueueByCallback(
 	/** @type {Ctx} */ ctx,
 	{ onEmptyFileQueue = /** @type {() => void | Promise<void>} */ () => {} } = {},
@@ -355,35 +402,21 @@ async function handleContentFile(
 ) {
 	const inputUri = path.relative(ctx.defaults.rootDir, inputFile)
 
-	// TODO: Phase out content form?
-	let contentForm = /** @type {ContentForm} */ (inputUri.slice('content/'.length))
-	contentForm = /** @type {ContentForm} */ (
-		contentForm.slice(0, contentForm.indexOf('/'))
-	)
-
 	const entrypointUri = await utilGetEntrypointFromInputUri(ctx, inputFile)
 	const rhoJs = await utilExtractRhoJs(ctx, entrypointUri)
-	const outputUri = await convertInputUriToOutputUri(
-		ctx,
-		inputUri,
-		rhoJs,
-		entrypointUri,
-		contentForm,
-	)
+	const outputUri = await convertInputUriToOutputUri(ctx, inputUri, rhoJs, entrypointUri)
 
 	const page = {
 		inputFile,
 		inputUri,
 		outputUri,
 		entrypointUri,
-		contentForm,
 		rhoJs,
 	}
 
 	if (inputUri != entrypointUri) {
 		await handleNonEntrypoint(ctx, page)
 	} else if (entrypointUri) {
-		// TODO: handle entrypoint in watch mode?
 		await handleEntrypoint(ctx, page)
 	} else {
 		consola.warn(`No content file found for ${inputUri}`)
@@ -402,10 +435,13 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 	consola.log(`Processing ${page.entrypointUri}...`)
 	if (
 		// prettier-ignore
-		page.inputFile.includes('/_') ||
-		page.inputFile.includes('_/')
+		page.inputUri.includes('/_') ||
+		page.inputUri.includes('_/')
 	) {
 		// Do not copy file.
+	} else if (page.inputUri.includes('/drafts/')) {
+		// Do not copy file.
+		// TODO: This should be replaced with something
 	} else if (page.entrypointUri.endsWith('.md')) {
 		let markdown = await fs.readFile(
 			path.join(ctx.defaults.rootDir, page.entrypointUri),
@@ -423,14 +459,13 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 				frontmatter: ctx.config.validateFrontmatter(
 					path.join(ctx.defaults.rootDir, page.entrypointUri),
 					frontmatter,
-					page.contentForm,
 				),
 			}
 		})()
 
 		const layout = await utilExtractLayout(ctx, [
 			frontmatter?.layout,
-			await ctx.config.getLayout(page.entrypointUri, page.contentForm),
+			await ctx.config.getLayout(ctx, page),
 			ctx?.defaults?.layout,
 			'default.hbs',
 		])
@@ -489,7 +524,7 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 			const header = await page.rhoJs?.Header?.(ctx)
 			const layout = await utilExtractLayout(ctx, [
 				meta?.layout,
-				await ctx.config.getLayout(page.entrypointUri ?? '', page.contentForm),
+				await ctx.config.getLayout(ctx, page),
 				ctx?.defaults?.layout,
 				'default.hbs',
 			])
@@ -518,12 +553,17 @@ async function handleEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page
 
 async function handleNonEntrypoint(/** @type {Ctx} */ ctx, /** @type {Page} */ page) {
 	if (
-		page.inputFile.includes('/_') ||
-		page.inputFile.includes('_/') ||
-		path.parse(page.inputFile).name.endsWith('_') ||
-		page.inputFile.endsWith('.rho.js')
+		page.inputUri.includes('/_') ||
+		page.inputUri.includes('_/') ||
+		path.parse(page.inputUri).name.endsWith('_') ||
+		page.inputUri.endsWith('.rho.js')
 	) {
 		// Do not copy file.
+	} else if (page.inputUri.includes('/drafts/')) {
+		// Do not copy file.
+		// TODO: This should be replaced with something
+	} else if (page.inputUri.match(/\.[a-zA-Z]+\.js$/)) {
+		throw new Error(`Did you mean to append ".rho.js" for file: ${page.inputFile}?`)
 	} else {
 		const outputFile = path.join(ctx.defaults.outputDir, page.outputUri)
 		await fs.mkdir(path.dirname(outputFile), { recursive: true })
@@ -627,7 +667,6 @@ async function convertInputUriToOutputUri(
 	/** @type {string} */ inputUri,
 	/** @type {RhoJs} */ rhoJs,
 	/** @type {string | null} */ entrypointUri,
-	/** @type {ContentForm} */ contentForm,
 ) {
 	const inputFile = path.join(ctx.defaults.rootDir, inputUri)
 	inputUri = path.relative(ctx.defaults.contentDir, inputFile)
@@ -642,21 +681,17 @@ async function convertInputUriToOutputUri(
 	if (parentDirname.includes('.') && parentDirname !== '.') {
 		return path.join(pathPart, path.parse(inputUri).base)
 	} else if (!inputUri.endsWith('.html') && !inputUri.endsWith('.md')) {
-		const relPart = await getNewParentDirname(ctx, inputUri, contentForm)
+		const relPart = await getNewParentDirname()
 		return path.join(pathPart, relPart, path.parse(inputUri).base)
 	} else if (path.parse(inputUri).name === parentDirname) {
-		const parentDirname = await getNewParentDirname(ctx, inputUri, contentForm)
+		const parentDirname = await getNewParentDirname()
 		return path.join(pathPart, parentDirname, 'index.html')
 	} else {
-		const relPart = await getNewParentDirname(ctx, inputUri, contentForm)
+		const relPart = await getNewParentDirname()
 		return path.join(pathPart, relPart, path.parse(inputUri).name + '.html')
 	}
 
-	async function getNewParentDirname(
-		/** @type {Ctx} */ ctx,
-		/** @type {string} */ inputUri,
-		/** @type {ContentForm} */ contentForm,
-	) {
+	async function getNewParentDirname() {
 		const inputFile = path.join(ctx.defaults.contentDir, inputUri)
 
 		const meta = await rhoJs?.Meta?.()
@@ -669,7 +704,6 @@ async function convertInputUriToOutputUri(
 				ctx,
 				inputFile,
 				entrypointUri,
-				contentForm,
 			)
 			return frontmatter.slug ?? path.basename(path.dirname(inputUri))
 		} else {
@@ -682,7 +716,6 @@ async function extractContentFileFrontmatter(
 	/** @type {Ctx} */ ctx,
 	/** @type {string} */ inputFile,
 	/** @type {string} */ entrypointUri,
-	/** @type {ContentForm} */ contentForm,
 ) {
 	if (!inputFile) return {}
 	const entrypointFile = path.join(ctx.defaults.rootDir, entrypointUri)
@@ -700,9 +733,7 @@ async function extractContentFileFrontmatter(
 		return ''
 	})
 
-	return /** @type {ContentForm} */ (
-		ctx.config.validateFrontmatter(entrypointFile, frontmatter, contentForm)
-	)
+	return ctx.config.validateFrontmatter(entrypointFile, frontmatter)
 }
 
 async function utilExtractLayout(/** @type {Ctx} */ ctx, /** @type {any[]} */ layouts) {
@@ -756,7 +787,7 @@ async function utilGetEntrypointFromInputUri(
 		])
 	}
 
-	// Search for a valid content file in the same directory.
+	// Search for a valid "content file" in the same directory.
 	for (const uri of fileUris) {
 		const file = path.join(path.dirname(inputFile), uri)
 		if (['.md', '.html', '.xml'].includes(path.parse(uri).ext)) {

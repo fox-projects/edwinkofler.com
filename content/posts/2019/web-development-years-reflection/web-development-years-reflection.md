@@ -1,10 +1,10 @@
 +++
-title = "Frontend Web Development: My First Year"
-slug = "front-end-web-dev-a-years-reflection"
-author = "Edwin Kofler"
+title = 'Frontend Web Development: My First Year'
+slug = 'front-end-web-dev-a-years-reflection'
+author = 'Edwin Kofler'
 date = 2019-06-17T00:47:57-07:00
-categories = ["web"]
-tags = ["reflection", "frontend"]
+categories = ['web']
+tags = ['reflection', 'frontend']
 +++
 
 So I was reintroduced to programming during the fall of 2017. I was learning Java in my AP Computer Science A class. The class was another one of those "college-level" "advanced placement" (AP) classes, which actually became really fun near the end.

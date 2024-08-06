@@ -51,7 +51,7 @@ const Ctx = Object.freeze({
 					<body>
 						{{__body}}
 					</body>
-					</html>`,
+					</html>\n`,
 			)
 		},
 		validateFrontmatter(
@@ -88,7 +88,7 @@ suite('.md entrypoint works', async () => {
 					author = 'First Last'
 					date = 2000-01-01
 					+++
-					water`,
+					water\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -107,7 +107,7 @@ suite('.md entrypoint works', async () => {
 	// 				date = 2000-01-01
 	// 				slug = 'my-slug'
 	// 				+++
-	// 				water`,
+	// 				water\n`,
 	// 	})
 	// 	await commandBuild(Ctx)
 
@@ -124,7 +124,7 @@ suite('.md entrypoint works', async () => {
 					author = 'First Last'
 					date = 2000-01-01
 					+++
-					Bravo`,
+					Bravo\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -141,7 +141,7 @@ suite('.md entrypoint works', async () => {
 					author = 'First Last'
 					date = 2000-01-01
 					+++
-					Bravo`,
+					Bravo\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -159,7 +159,7 @@ suite('.md entrypoint works', async () => {
 					date = 2000-01-01
 					slug = 'my-slug'
 					+++
-					Bravo`,
+					Bravo\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -177,7 +177,7 @@ suite('.md entrypoint works', async () => {
 					date = 2000-01-01
 					slug = 'my-slug'
 					+++
-					Bravo`,
+					Bravo\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -191,7 +191,7 @@ suite('.html entrypoint works', async () => {
 	test('index.html', async () => {
 		await writeFiles({
 			'./content/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -204,13 +204,13 @@ suite('.html entrypoint works', async () => {
 	// test('index.html with slug', async () => {
 	// 	await writeFiles({
 	// 		'./content/index.html': dedent`
-	// 				<p>water</p>`,
+	// 				<p>water</p>\n`,
 	// 		'./content/index.html.rho.js': dedent`
 	// 				export function Meta() {
 	// 					return {
 	// 						slug: 'my-slug'
 	// 					}
-	// 				}`,
+	// 				}\n`,
 	// 	})
 	// 	await commandBuild(Ctx)
 
@@ -222,7 +222,7 @@ suite('.html entrypoint works', async () => {
 	test('test/index.html', async () => {
 		await writeFiles({
 			'./content/test/index.html': dedent`
-					<p>Bravo</p>`,
+					<p>Bravo</p>\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -234,7 +234,7 @@ suite('.html entrypoint works', async () => {
 	test('test/test.html', async () => {
 		await writeFiles({
 			'./content/test/test.html': dedent`
-					<p>Bravo</p>`,
+					<p>Bravo</p>\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -246,13 +246,13 @@ suite('.html entrypoint works', async () => {
 	test('test/index.html with slug', async () => {
 		await writeFiles({
 			'./content/test/index.html': dedent`
-					<p>Bravo</p>`,
+					<p>Bravo</p>\n`,
 			'./content/test/index.html.rho.js': dedent`
 					export function Meta() {
 						return {
 							slug: 'my-slug'
 						}
-					}`,
+					}\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -264,13 +264,13 @@ suite('.html entrypoint works', async () => {
 	test('test/test.html with slug', async () => {
 		await writeFiles({
 			'./content/test/test.html': dedent`
-					<p>Bravo</p>`,
+					<p>Bravo</p>\n`,
 			'./content/test/test.html.rho.js': dedent`
 					export function Meta() {
 						return {
 							slug: 'my-slug'
 						}
-					}`,
+					}\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -284,9 +284,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('index.html and style.css are copied', async () => {
 		await writeFiles({
 			'./content/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/style.css': dedent`
-					p { font-size: 16px; }`,
+					p { font-size: 16px; }\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -299,9 +299,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('index.html.rho.js is skipped', async () => {
 		await writeFiles({
 			'./content/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/index.html.rho.js': dedent`
-					export function Meta() {}`,
+					export function Meta() {}\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -314,9 +314,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('test/test.html.rho.js is skipped', async () => {
 		await writeFiles({
 			'./content/test/test.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/test/test.html.rho.js': dedent`
-					export function Meta() {}`,
+					export function Meta() {}\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -329,9 +329,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('test.html/test.html.rho.js is skipped', async () => {
 		await writeFiles({
 			'./content/test.html/test.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/test.html/test.html.rho.js': dedent`
-					export function Meta() {}`,
+					export function Meta() {}\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -344,9 +344,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('style_.css is skipped', async () => {
 		await writeFiles({
 			'./content/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/style_.css': dedent`
-					p { font-size: 16px; }`,
+					p { font-size: 16px; }\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -359,9 +359,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('_style.css is skipped', async () => {
 		await writeFiles({
 			'./content/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/_style.css': dedent`
-					p { font-size: 16px; }`,
+					p { font-size: 16px; }\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -374,9 +374,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('dir_/* is skipped', async () => {
 		await writeFiles({
 			'./content/dir_/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/dir_/style.css': dedent`
-					p { font-size: 16px; }`,
+					p { font-size: 16px; }\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -389,9 +389,9 @@ suite('content is correctly (not-)?copied', async () => {
 	test('_dir/* is skipped', async () => {
 		await writeFiles({
 			'./content/_dir/index.html': dedent`
-					<p>water</p>`,
+					<p>water</p>\n`,
 			'./content/_dir/style.css': dedent`
-					p { font-size: 16px; }`,
+					p { font-size: 16px; }\n`,
 		})
 		await commandBuild(Ctx)
 
@@ -402,14 +402,31 @@ suite('content is correctly (not-)?copied', async () => {
 	})
 })
 
-suite('rho.js', async () => {
+suite('rho.js validation checks', async () => {
 	test('index.html.rho.js throws without corresponding index.html', async () => {
 		await writeFiles({
 			'./content/index.html.rho.js': dedent`
-					export function Meta() {}`,
+					export function Meta() {}\n`,
 		})
 
-		assertThrownErrorWithMessage('No entrypoint found for file', async () => {
+		await assertThrownErrorWithMessage('No entrypoint found for file', async () => {
+			await commandBuild(Ctx)
+		})
+	})
+
+	/**
+	 * A file called 'index.html.js' is probably a typo for the
+	 * file 'index.html.rho.js'.
+	 */
+	test('index.something.js throws', async () => {
+		await writeFiles({
+			'./content/index.html': dedent`
+					<p>water</p>\n`,
+			'./content/index.html.js': dedent`
+					const var = 'a'\n`,
+		})
+
+		await assertThrownErrorWithMessage('Did you mean to', async () => {
 			await commandBuild(Ctx)
 		})
 	})

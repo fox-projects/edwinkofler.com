@@ -197,7 +197,6 @@ body {
 	border-color: #606060;
 	outline: none;
 	background-color: rgba(0, 0, 0, 0);
-	/* -webkit-tap-highlight-color: rgba(0, 0, 0, 0); */
 }
 
 .content_ hr {
