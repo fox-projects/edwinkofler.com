@@ -12,6 +12,9 @@ Wedding myself to a third-party static site generator solution limits the degree
 - Fix "XML" file being an entrypoint. ie, all files should be able to be procesed with a ".rho.js" file.
 - Improve logging (add verbose mode)
 - Be able to build only certain files/directory matching a glob
+- Fix "cache" not working
+- When saving "global.css", first generate page that is currently being viewed
+- "Snippets", "Recipes", "Thoughts"
 - `new` subcommand for making new templates
 - later: more tests for `.rho.js`
 - later: Make `FileList` a `DirList` (later)
