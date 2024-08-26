@@ -3,7 +3,6 @@
 	"version": "0.1.0",
 	"type": "module",
 	"description": "",
-	"author": "Edwin Kofler <edwin@kofler.dev> (https://edwinkofler.com/)",
 	"license": "MPL-2.0",
 	"packageManager": "pnpm@9.6.0",
 	"engines": {
@@ -17,7 +16,9 @@
 		"format:prettier": "pnpm run format:toml",
 		"format:toml": "taplo fmt",
 		"test": "node --import ./rho.register.js ./rho.test.js",
-		"test:only": "node --import ./rho.register.js --test-only ./rho.test.js"
+		"test:only": "node --import ./rho.register.js --test-only ./rho.test.js",
+		"lint": "hyperupcall-scripts-nodejs lint",
+		"format": "hyperupcall-scripts-nodejs format"
 	},
 	"dependencies": {
 		"@shikijs/markdown-it": "^1.12.1",
@@ -34,7 +35,8 @@
 	"devDependencies": {
 		"@hyperupcall/prettier-config": "^0.7.0",
 		"dedent": "^1.5.3",
-		"prettier-plugin-pkg": "^0.18.1"
+		"prettier-plugin-pkg": "^0.18.1",
+		"@hyperupcall/scripts-nodejs": "0.2.0"
 	},
 	"nodemonConfig": {
 		"watch": [
@@ -42,5 +44,7 @@
 			"./rho.config.js",
 			"./rho.marked.js"
 		]
-	}
+	},
+	"private": true,
+	"prettier": "@hyperupcall/scripts-nodejs/prettier-config.js"
 }
