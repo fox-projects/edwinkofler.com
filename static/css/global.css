@@ -88,7 +88,7 @@ body {
 	gap: 6px;
 	margin-inline-end: 10px;
 	font-family: 'IBM Plex Sans', sans-serif;
-	font-weight: 200;
+	font-weight: 300;
 	font-style: normal;
 
 	& s.disabled {
@@ -145,7 +145,6 @@ body {
 
 .content_ pre,
 .content_ code {
-	/* font-family: 'Roboto Mono', monospace; */
 	font-family: 'PT Mono', monospace;
 	font-optical-sizing: auto;
 	font-weight: 300;

@@ -14,10 +14,10 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Run Watch",
+			"name": "Run Serve",
 			"runtimeExecutable": "/home/edwin/.local/share/mise/installs/node/latest/bin/node",
 			"runtimeArgs": ["--import", "./rho.register.js"],
-			"args": ["watch"],
+			"args": ["serve"],
 			"program": "${workspaceFolder}/rho.js",
 			"skipFiles": ["<node_internals>/**"]
 		},

@@ -4,16 +4,11 @@ Wedding myself to a third-party static site generator solution limits the degree
 
 ## Plans <!-- omit from toc -->
 
-- Fix "cache" not working
-- When saving "global.css", first generate page that is currently being viewed
+- Blog RSS feed and fix tags/categories in dev server
 - Be able to build only certain files/directory matching a glob
 - later: treat entrypoint and non-entrypoint the same
   - fix "XML" file being an entrypoint. ie, all files should be able to be procesed with a ".rho.js" file.
-- later: Improve logging (add verbose mode)
-- later: download fonts and self-host
-- later: more tests for `.rho.js`
 - later: Make `FileList` a `DirList` (later)
-- later: Custom dev server / replace `browser-sync` with custom solution
 - later: Linter to always ensure trailing slash for local URLs
 
 ## Introduction <!-- omit from toc -->

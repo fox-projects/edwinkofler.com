@@ -1,3 +1,11 @@
+export function Header() {
+	return {
+		content: `
+			<link rel="stylesheet" href="./posts.css" />
+		`,
+	}
+}
+
 export async function GenerateTemplateVariables(ctx) {
 	const posts = await ctx.helpers.getPosts(ctx.config)
 	posts.sort((a, b) => {

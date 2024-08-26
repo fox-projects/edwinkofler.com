@@ -10,7 +10,6 @@
 		"node": ">=20.12.0"
 	},
 	"main": "index.js",
-	"keywords": [],
 	"scripts": {
 		"build": "./rho.js build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules",
@@ -22,17 +21,13 @@
 	},
 	"dependencies": {
 		"@shikijs/markdown-it": "^1.12.1",
-		"browser-sync": "^3.0.2",
-		"chokidar": "^3.6.0",
 		"consola": "^3.2.3",
-		"execa": "^9.3.0",
 		"h3": "^1.12.0",
 		"handlebars": "^4.7.8",
-		"katex": "^0.16.11",
 		"listhen": "^1.7.2",
 		"markdown-it": "^14.1.0",
 		"markdown-it-emoji": "^3.0.0",
-		"prettier": "^3.3.3",
+		"mime-types": "^2.1.35",
 		"shiki": "^1.12.1",
 		"smol-toml": "^1.3.0"
 	},
