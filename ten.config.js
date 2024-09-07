@@ -6,8 +6,6 @@ import TOML from 'smol-toml'
 const Filename = new URL(import.meta.url).pathname
 const Dirname = path.dirname(Filename)
 
-import { MarkdownItInstance } from './rho.js'
-
 /**
  * @typedef {import('./rho.js').Ctx} Ctx
  *
@@ -22,7 +20,7 @@ export const ctx = Object.freeze({
 		title: 'Edwin Kofler',
 		layout: 'default.hbs',
 		rootDir: Dirname,
-		buildJsFile: path.join(Dirname, 'rho.js'),
+		buildJsFile: path.join(Dirname, '	.js'),
 		cacheFile: path.join(Dirname, '.cache/cache.json'),
 		contentDir: path.join(Dirname, 'content'),
 		layoutDir: path.join(Dirname, 'layouts'),
@@ -137,7 +135,7 @@ async function helperGetPosts(/** @type {Ctx} */ ctx) {
 				})
 
 				return {
-					html: MarkdownItInstance.render(markdown),
+					html: globalThis.MarkdownItInstance.render(markdown),
 					frontmatter: ctx.config.validateFrontmatter(
 						inputFile,
 						frontmatter,
