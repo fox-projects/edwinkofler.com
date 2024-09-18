@@ -1,5 +1,5 @@
-export async function GenerateTemplateVariables(ctx) {
-	const posts = await ctx.helpers.getPosts(ctx.config)
+export async function GenerateTemplateVariables({ config, options }) {
+	const posts = await config.tenHelpers.getPosts({ config, options })
 
 	let categories = []
 	for (const post of posts) {
