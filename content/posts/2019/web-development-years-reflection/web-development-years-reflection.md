@@ -1,6 +1,5 @@
 +++
 title = 'Frontend Web Development: My First Year'
-slug = 'front-end-web-dev-a-years-reflection'
 author = 'Edwin Kofler'
 date = 2019-06-17T00:47:57-07:00
 categories = ['web']

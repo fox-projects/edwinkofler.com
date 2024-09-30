@@ -1,6 +1,5 @@
 +++
 title = 'The UMPIRE Method'
-slug = 'umpire-method'
 author = 'Edwin Kofler'
 date = 2022-09-24T00:00:00-00:00
 categories = []

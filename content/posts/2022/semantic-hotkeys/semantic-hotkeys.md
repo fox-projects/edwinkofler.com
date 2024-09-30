@@ -1,6 +1,5 @@
 +++
 title = 'Semantic Hotkeys'
-slug = 'semantic-hotkeys'
 author = 'Edwin Kofler'
 date = 2022-08-19T11:52:21-07:00
 categories = ['hotkeys']

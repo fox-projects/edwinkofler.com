@@ -1,6 +1,5 @@
 +++
 title = "Fibonacci Equation for Zth (Nth) Term Using Pascal's Triangle (Part 1 of 2)"
-slug = "fibonacci-equation-using-pascals-triangle-part-1"
 author = "Edwin Kofler"
 date = 2018-11-16T10:10:57-08:00
 categories = ['math']

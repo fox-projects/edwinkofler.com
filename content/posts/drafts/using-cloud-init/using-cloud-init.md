@@ -1,6 +1,5 @@
 +++
 title = 'Using Cloud Init'
-slug = 'using-cloud-init'
 author = 'Edwin Kofler'
 date = 2020-01-27T17:58:23-08:00
 categories = []

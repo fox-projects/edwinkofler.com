@@ -1,6 +1,5 @@
 +++
 title = 'Fixing My Network after expanding the LAN'
-slug = 'fixing-my-internal-network'
 author = 'Edwin Kofler'
 date = 2020-03-26T14:07:45-07:00
 categories = ['linux']

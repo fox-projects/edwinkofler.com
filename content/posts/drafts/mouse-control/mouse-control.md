@@ -1,6 +1,5 @@
 +++
 title = 'Mouse Control'
-slug = 'mouse-control'
 author = 'Edwin Kofler'
 date = 2023-03-30T15:13:14-07:00
 categories = []
