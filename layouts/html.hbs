@@ -1,5 +1,13 @@
-{{>top}}
-<main class="html_">
-	{{__body}}
-</main>
-{{>bottom}}
+{{>__html_begin}}
+	{{>__head_begin}}
+		{{>head_standard}}
+	{{>__head_end}}
+	<body class="html_">
+		{{>header}}
+		<div class="content_outer_">
+			<div class="content_">
+				{{__body}}
+			</div>
+		</div>
+	</body>
+{{>__html_end}}

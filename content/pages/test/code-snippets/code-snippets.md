@@ -1,6 +1,5 @@
 +++
 title = 'Code Snippets'
-layout = 'markdown.hbs'
 +++
 
 ## JavaScript

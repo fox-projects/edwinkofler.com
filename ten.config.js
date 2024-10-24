@@ -3,19 +3,23 @@ import fs from 'node:fs/promises'
 
 import TOML from 'smol-toml'
 
-const Filename = new URL(import.meta.url).pathname
-const Dirname = path.dirname(Filename)
-
-export const defaults = /** @type {const} */ ({
+export const defaults = {
 	title: 'Edwin Kofler',
-	layout: 'default.hbs',
-	cacheFile: path.join(Dirname, '.cache/cache.json'),
-	contentDir: path.join(Dirname, 'content'),
-	layoutDir: path.join(Dirname, 'layouts'),
-	partialDir: path.join(Dirname, 'partials'),
-	staticDir: path.join(Dirname, 'static'),
-	outputDir: path.join(Dirname, 'build'),
-})
+}
+
+export function decideLayout(config, options, page) {
+	const uri = path.relative(config?.defaults.contentDir, page.inputFile)
+
+	if (uri.startsWith('posts/')) {
+		return 'markdown.hbs'
+	}
+
+	if (page.inputUri.endsWith('.md')) {
+		return 'markdown.hbs'
+	} else if (page.inputUri.endsWith('.html')) {
+		return 'html.hbs'
+	}
+}
 
 export function transformUri(/** @type {string} */ uri) {
 	if (uri.startsWith('pages/')) {
@@ -45,21 +49,12 @@ export function transformUri(/** @type {string} */ uri) {
 	return uri
 }
 
-export function getLayout(/** @type {Config} */ config, /** @type {Options} */ options, /** @type {Page} */ page) {
-	const uri = path.relative(defaults.contentDir, page.inputFile)
-
-	if (uri.startsWith('posts/')) {
-		return 'markdown.hbs'
-	}
-
-	return null
-}
-
 export function validateFrontmatter(
+	/** @type {Config} */ config,
 	/** @type {string} */ inputFile,
 	/** @type {Partial<Frontmatter>} */ frontmatter,
 ) {
-	const uri = path.relative(defaults.contentDir, inputFile)
+	const uri = path.relative(config?.defaults.contentDir, inputFile)
 
 	if (uri.startsWith('posts/')) {
 		for (const requiredProperty of ['title', 'author', 'date']) {
@@ -97,14 +92,14 @@ export const handlebearsHelpers = ({})
 export const tenHelpers = {
 	async getPosts({ config, options }) {
 		const posts = []
-		for (const year of await fs.readdir(path.join(defaults.contentDir, 'posts'))) {
+		for (const year of await fs.readdir(path.join(config?.defaults.contentDir, 'posts'))) {
 			if (year === 'drafts') continue
 
 			for (const post of await fs.readdir(
-				path.join(defaults.contentDir, 'posts', year),
+				path.join(config?.defaults.contentDir, 'posts', year),
 			)) {
 				const inputFile = await getInputFile(
-					path.join(defaults.contentDir, 'posts', year, post),
+					path.join(config?.defaults.contentDir, 'posts', year, post),
 					post,
 				)
 				let markdown = await fs.readFile(inputFile, 'utf-8')
@@ -118,6 +113,7 @@ export const tenHelpers = {
 					return {
 						html: globalThis.MarkdownItInstance.render(markdown),
 						frontmatter: config.validateFrontmatter(
+							config,
 							inputFile,
 							frontmatter,
 							/** @type {ContentForm} */ (''),

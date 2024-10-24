@@ -1,6 +1,5 @@
 +++
 title = 'Latex'
-layout = 'markdown.hbs'
 +++
 
 ## Inline Latex

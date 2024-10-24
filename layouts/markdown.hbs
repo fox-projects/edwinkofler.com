@@ -1,8 +1,16 @@
-{{>top}}
-<main class="markdown_">
-	{{#if __title}}
-			<h1>{{__title}}</h1>
-	{{/if}}
-	{{__body}}
-</main>
-{{>bottom}}
+{{>__html_begin}}
+	{{>__head_begin}}
+		{{>head_standard}}
+	{{>__head_end}}
+	<body class="markdown_">
+		{{>header}}
+		<div class="content_outer_">
+			<main class="content_">
+				{{#if __title}}
+				<h1>{{__title}}</h1>
+				{{/if}}
+				{{__body}}
+			</main>
+		</div>
+	</body>
+{{>__html_end}}
