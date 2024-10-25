@@ -23,11 +23,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: 'actions/checkout@v4'
       - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with rho.js
-        run: "npm install && ten build"
+        uses: 'actions/configure-pages@v5'
+      - uses: 'actions/setup-node@v4'
+        with:
+          node-version: 23
+      - run: 'npm install'
+      - run: './node_modules/.bin/ten build'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
