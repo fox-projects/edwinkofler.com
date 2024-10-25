@@ -8,15 +8,9 @@
 	"engines": {
 		"node": ">=20.12.0"
 	},
-	"main": "index.js",
 	"scripts": {
-		"build": "./rho.js build",
+		"build": "ten build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules",
-		"dev": "pnpx nodemon --import ./rho.register.js -- ./rho.js",
-		"format:prettier": "pnpm run format:toml",
-		"format:toml": "taplo fmt",
-		"test": "node --import ./rho.register.js ./rho.test.js",
-		"test:only": "node --import ./rho.register.js --test-only ./rho.test.js",
 		"lint": "hyperupcall-scripts-nodejs lint",
 		"format": "hyperupcall-scripts-nodejs format"
 	},
@@ -34,16 +28,10 @@
 	},
 	"devDependencies": {
 		"@hyperupcall/prettier-config": "^0.7.0",
+		"@hyperupcall/scripts-nodejs": "0.2.0",
+		"@hyperupcall/ten": "^0.3.0",
 		"dedent": "^1.5.3",
-		"prettier-plugin-pkg": "^0.18.1",
-		"@hyperupcall/scripts-nodejs": "0.2.0"
-	},
-	"nodemonConfig": {
-		"watch": [
-			"./rho.js",
-			"./rho.config.js",
-			"./rho.marked.js"
-		]
+		"prettier-plugin-pkg": "^0.18.1"
 	},
 	"private": true,
 	"prettier": "@hyperupcall/scripts-nodejs/prettier-config.js"
