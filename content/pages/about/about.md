@@ -2,7 +2,7 @@
 title = 'About'
 +++
 
-I'm Edwin Kofler, a software developer! See my GitHub [profile](https://github.com/hyperupcall) to see what I've been working on. You can learn more about me at [edwinkofler.com](https://edwinkofler.com).
+I like to learn and I like to solve problems.
 
 ## Now
 
@@ -17,5 +17,6 @@ Software-wise, I'm focusing on writing a personal software solution for knowledg
 
 ## Colophon
 
-The source for this repository can be found at [fox-projects/edwinkofler.com](https://github.com/fox-projects/edwinkofler.com). It was generated using [ten](https://github.com/fox-incubating/ten), a personal static site generator.
+This website was created with my own static site generator, [ten](https://github.com/fox-incubating/ten). I chose to build my own solution because I wanted full control over the build process and I wanted my code to last (over decades).
 
+The documents and files for this website can be found at [fox-projects/edwinkofler.com](https://github.com/fox-projects/edwinkofler.com).

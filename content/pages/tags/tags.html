@@ -1,7 +1,7 @@
 <main>
 	<h1>Tags</h1>
 	<ul>
-		{{#each tags}}
+		{{#each Page.parameters.tags}}
 		<li><a href="/tag/{{@key}}/">{{@key}}</a><sup>{{this}}</sup></li>
 		{{/each}}
 	</ul>
