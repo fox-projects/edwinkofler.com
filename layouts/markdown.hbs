@@ -4,16 +4,16 @@
 	{{>__head_end}}
 	<body class="markdown_">
 		{{>header}}
-		<div class="content_outer_">
-			<main class="content_">
+		<div class="Content">
+			<main class="markdown-body">
 				{{#if Title}}
 				<h1>{{Title}}</h1>
 				{{/if}}
-				{{#if __frontmatter.title}}
-				<h2>{{__frontmatter.author}}</h2>
+				{{#if __frontmatter.author}}
+				<h3 style="margin-block: 0 2px; font-weight: 400">Authored by {{__frontmatter.author}}</h3>
 				{{/if}}
 				{{#if __date}}
-				<h4>{{__date}}</h4>
+				<h4 style="margin-block: 0 16px; font-weight: 400">Published on {{__date}}</h4>
 				{{/if}}
 				{{Body}}
 			</main>

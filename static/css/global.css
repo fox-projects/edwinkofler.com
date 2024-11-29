@@ -7,7 +7,7 @@
 }
 
 :root {
-	--text-color-primary: var(--oc-gray-9);
+	--text-color-primary: var(--oc-gray-7);
 	--text-color-light: #868e96;
 	--text-background-color: #ffc9c9;
 }
@@ -18,7 +18,7 @@ html {
 
 body {
 	font-family: 'Geologica', sans-serif;
-	font-weight: 200;
+	font-weight: 500;
 	font-style: normal;
 	font-size: 18px;
 	color: var(--text-color-primary);
@@ -26,67 +26,76 @@ body {
 	height: 100%;
 	display: grid;
 	grid-template-columns: 250px 1fr;
+	gap: 12px;
 }
 
-.html_ main {
-	/*margin: 0 auto;*/
-	margin-left: 30px;
-	max-width: 800px;
-	padding: 10px;
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'IBM Plex Sans', sans-serif;
 }
 
-.markdown_ main {
-/* 	margin: 0 auto; */
-	margin-left: 30px;
-	max-width: 800px;
-	padding: 10px;
+
+tt, code, samp, pre, kbd {
+	font-family: 'PT Mono', monospace;
+	font-optical-sizing: auto;
+	font-weight: 300;
+	font-style: normal;
+	font-variation-settings:
+		'slnt' 0,
+		'CRSV' 0,
+		'SHRP' 0;
+	font-size: 16px;
 }
 
-.header_ {
+pre {
+	border: 1px solid var(--text-color-light)
+}
+
+a {
+	color: var(--text-color-primary);
+	text-decoration: underline;
+	text-decoration-style: solid;
+	border-radius: 4px;
+}
+
+a:hover {
+	background-color: var(--text-background-color);
+}
+
+.Header {
+	display: grid;
+	grid-template-rows: auto 1fr auto;
 	box-shadow:
-		2px 2px 7px 2px #dee2e6,
-		4px 4px 5px 6px #f1f3f5,
-		7px 7px 10px 6px #f8f9fa;
-	overflow: hidden;
+		2px 2px 6px 2px #dee2e6,
+		4px 4px 5px 6px #f1f3f5;
 
 	& a {
-		color: var(--text-color-primary);
-		text-decoration: none;
-	}
-
-	& a:hover {
-		color: var(--text-color-primary);
-		font-weight: bold;
+		font-size: 20px;
 	}
 }
 
-.header_ .profile-picture {
-	transition: transform 0.35s ease-out;
+.Header .profile-picture_ {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	margin-block-end: 10px;
 
 	& > a {
 		display: inline-block;
-		margin-block-start: 15px;
-		margin-inline-start: 25px; /* TODO */
-		background-color: unset;
-		margin-block-end: 8px;
+		margin-block: 18px 8px;
+		background-color: unset !important;
 	}
 
 	& img {
 		width: 200px;
 		border-radius: 10px;
-		transition: transform 0.1s ease-out;
 	}
 
 	& img:hover {
-		transform: scale(1.075) rotateZ(-3.75deg);
+		transform: scale(1.05) rotateZ(-3.75deg);
 	}
 
 	& h1 {
 		text-align: center;
-		transition:
-			color 0.1s ease-out,
-			transform 0.1s ease-out;
 	}
 
 	& h1:hover {
@@ -95,14 +104,13 @@ body {
 	}
 }
 
-.header-bottom_ {
+.Header .header-bottom_ {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: calc(100% - 320px); /* TODO */
 }
 
-.header_ .nav {
+.Header .nav {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
@@ -111,19 +119,9 @@ body {
 	font-family: 'IBM Plex Sans', sans-serif;
 	font-weight: 300;
 	font-style: normal;
-
-	& s.disabled {
-		text-decoration-color: #868e96;
-
-		& > a {
-			background-color: unset;
-			color: #868e96;
-			cursor: not-allowed;
-		}
-	}
 }
 
-.header_ .links {
+.Header .links {
 	margin-inline-start: 10px;
 
 	& .link {
@@ -141,133 +139,22 @@ body {
 	}
 }
 
-.header_ .footer {
-	margin: 10px 0;
+.Header .footer {
+	padding-block: 4px 2px;
 	text-align: center;
 }
 
-.content_outer_ {
-		position: relative;
-		width: 100%;
-		height: 100%;
-		overflow: auto;
-}
-.content_ {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
+.Content {
 	height: 100%;
+	padding-block-start: 10px;
+	overflow: auto;
 
-	color: var(--oc-gray-7);
-	line-height: 1.35;
-	-webkit-hyphens: auto;
-	hyphens: auto;
-	/* padding: 15px 30px 0 30px; */
-	word-wrap: break-word;
-
-	& pre {
-		display: block;
-		overflow-x: auto;
-		border-radius: 3px;
-		padding: 2px;
-		border: 1px solid var(--oc-gray-5);
+	& .markdown-body {
+		max-width: 800px;
 	}
-}
 
-.content_ pre,
-.content_ code {
-	font-family: 'PT Mono', monospace;
-	font-optical-sizing: auto;
-	font-weight: 300;
-	font-style: normal;
-	font-variation-settings:
-		'slnt' 0,
-		'CRSV' 0,
-		'SHRP' 0;
-	font-size: 16px;
-}
-
-.content_ ul,
-.content_ ol {
-	margin-inline-start: 20px;
-}
-
-.content_ hr {
-	border-style: solid;
-	color: var(--oc-gray-6);
-}
-
-.content_ blockquote {
-	border-left: 5px solid #ccc;
-	background: #f5f5f5;
-	margin: 20px;
-	padding-left: 10px;
-}
-
-.content_ img {
-	display: block;
-	margin: 0 auto;
-	max-width: 100%;
-	height: auto;
-}
-
-.content_ p {
-	margin: 15px 0 25px;
-}
-
-.content_ a {
-	text-decoration: none;
-	color: inherit;
-	border-bottom: medium solid #f0f0f0;
-	transition: border-color 600ms;
-}
-
-.content_ a:hover,
-.content_ a:active {
-	border-color: #606060;
-	outline: none;
-	background-color: rgba(0, 0, 0, 0);
-}
-
-.content_ hr {
-	width: 150px;
-	margin: 50px auto;
-	height: 1px;
-	overflow: hidden;
-	border: none;
-	background: #e8e8e8;
-}
-
-.content_ a {
-	color: var(--text-color-primary);
-	text-decoration: underline;
-	text-decoration-style: solid;
-	border-radius: 4px;
-	padding: 1px;
-}
-
-.content_ a:hover {
-	background-color: var(--text-background-color);
-}
-
-.content_ hr {
-	height: 1px;
-	background-color: var(--text-color-primary);
-	margin-block: 25px;
-}
-
-.content_ h1,
-.content_ h2,
-.content_ h3,
-.content_ h4,
-.content_ h5 {
-	font-family: 'IBM Plex Sans', sans-serif;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	* {
-		transition-duration: 0s !important;
+	& main {
+		padding-inline: 10px;
 	}
 }
 
@@ -277,11 +164,12 @@ body {
 		grid-template-rows: 200px 1fr;
 	}
 
-	.header_ {
+	.Header {
 		display: grid;
 		grid-template-columns: auto 1fr;
+		grid-template-rows: 1fr;
 
-		& .profile-picture {
+		& .profile-picture_ {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -293,12 +181,18 @@ body {
 			}
 
 			& img {
-				width: 100px;
+				width: 125px;
 			}
 
 			& h1 {
-				font-size: 1em;
+				font-size: 24px;
 			}
+		}
+
+		& .header-bottom_ {
+			display: flex;
+			align-items: center;
+			flex-direction: row;
 		}
 
 		& .nav {
@@ -325,13 +219,13 @@ body {
 }
 
 @media (max-height: 750px) {
-	.header_ .links {
+	.Header .links {
 		display: none;
 	}
 }
 
 @media (max-height: 650px) {
-	.header_ {
+	.Header {
 		line-height: 120%;
 	}
 }

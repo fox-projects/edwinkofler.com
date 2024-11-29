@@ -1,5 +1,5 @@
 export function Meta() {
 	return {
-		layout: 'html.hbs',
+		layout: 'html_content.hbs',
 	}
 }

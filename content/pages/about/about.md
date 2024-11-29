@@ -2,7 +2,7 @@
 title = 'About'
 +++
 
-I like to learn and I like to solve problems.
+I like to learn and solve problems. In my free time, I like to cook, learn, and contribute to open-source projects.
 
 ## Now
 
@@ -20,3 +20,5 @@ Software-wise, I'm focusing on writing a personal software solution for knowledg
 This website was created with my own static site generator, [ten](https://github.com/fox-incubating/ten). I chose to build my own solution because I wanted full control over the build process and I wanted my code to last (over decades).
 
 The documents and files for this website can be found at [fox-projects/edwinkofler.com](https://github.com/fox-projects/edwinkofler.com).
+
+Red Panda photograph can be found on [Flickr](https://www.flickr.com/photos/digitalart/4084550022).
