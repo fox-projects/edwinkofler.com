@@ -1,1 +1,1 @@
-export { default } from '@hyperupcall/scripts-nodejs/config-eslint.js'
+export { default } from "@hyperupcall/scripts-nodejs/config-eslint.js";

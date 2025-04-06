@@ -1,3 +1,5 @@
+import { getPosts } from '#helpers'
+
 export function Head() {
 	return {
 		content: `
@@ -7,7 +9,7 @@ export function Head() {
 }
 
 export async function GenerateTemplateVariables({ config, options }) {
-	const posts = await config.tenHelpers.getPosts({ config, options })
+	const posts = await getPosts({ config, options })
 	posts.sort((a, b) => {
 		const aTime = new Date(a.frontmatter.date.toISOString()).getTime()
 		const bTime = new Date(b.frontmatter.date.toISOString()).getTime()

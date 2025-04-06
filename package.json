@@ -4,23 +4,28 @@
 	"type": "module",
 	"description": "",
 	"license": "MPL-2.0",
+	"private": true,
 	"packageManager": "pnpm@9.6.0",
 	"engines": {
 		"node": ">=20.12.0"
 	},
+	"imports": {
+		"#helpers": "./sauerkraut.helpers.ts"
+	},
 	"scripts": {
-		"build": "ten build",
+		"build": "sauerkraut build",
 		"check": "lychee --offline .; pipx run linkchecker --ignore-url=node_modules",
-		"lint": "hyperupcall-scripts-nodejs lint",
-		"format": "hyperupcall-scripts-nodejs format"
+		"format": "hyperupcall-scripts-nodejs format",
+		"lint": "hyperupcall-scripts-nodejs lint"
+	},
+	"dependencies": {
+		"sauerkraut": "^0.4.2"
 	},
 	"devDependencies": {
-		"@hyperupcall/scripts-nodejs": "0.2.3",
-		"@hyperupcall/ten": "^0.4.0"
+		"@hyperupcall/scripts-nodejs": "0.2.3"
 	},
-	"private": true,
-	"prettier": "@hyperupcall/scripts-nodejs/config-prettier.js",
 	"markdownlint-cli2": {
 		"extends": "./node_modules/@hyperupcall/markdownlint-config/.markdownlint.json"
-	}
+	},
+	"prettier": "@hyperupcall/scripts-nodejs/config-prettier.js"
 }

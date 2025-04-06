@@ -1,5 +1,7 @@
+import { getPosts } from '#helpers'
+
 export async function GenerateSlugMapping({ config, options }) {
-	const posts = await config.tenHelpers.getPosts({ config, options })
+	const posts = await getPosts({ config, options })
 
 	let categories = {}
 	for (const post of posts) {
@@ -22,7 +24,7 @@ export async function GenerateSlugMapping({ config, options }) {
 }
 
 export async function GenerateTemplateVariables({ config, options }, { slug, count }) {
-	const posts = await config.tenHelpers.getPosts({ config, options })
+	const posts = await getPosts({ config, options })
 
 	let filteredPosts = []
 	for (const post of posts) {
