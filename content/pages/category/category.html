@@ -1,8 +1,0 @@
-<main>
-	<h1>{{category}}</h1>
-	<ul>
-		{{#each Page.parameters.posts}}
-		<li><a href="/posts/{{this.slug}}">{{this.frontmatter.title}}</a></li>
-		{{/each}}
-	</ul>
-</main>

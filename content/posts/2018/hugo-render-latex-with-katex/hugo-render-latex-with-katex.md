@@ -4,6 +4,7 @@ author = 'Edwin Kofler'
 date = 2018-09-15T11:26:16-07:00
 categories = ['update', 'tutorial']
 tags = ['LaTeX', 'KaTeX']
+url = '/posts/render-latex-with-katex-in-hugo-blog'
 +++
 
 
@@ -116,7 +117,5 @@ Integrate $$\int x^3 dx$$
 ```
 
 Integrate $$\int x^3 dx$$
-
-<br/>
 
 It turns out, using KaTeX rather than MathJax was easier than I thought. I hope you found this helpful :smile:

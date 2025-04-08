@@ -4,6 +4,7 @@ author = 'Edwin Kofler'
 date = 2022-01-08T00:48:33-08:00
 categories = ['tutorial']
 tags = ['linux']
+url = '/posts/terminal-automation-with-expect'
 +++
 
 [Expect](https://core.tcl-lang.org/expect/index) is _THE_ tool for automating tasks in the terminal. It is extremely helpful if you need to automate sending input to a program directly on the command line.

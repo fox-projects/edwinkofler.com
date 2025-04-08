@@ -4,6 +4,7 @@ author = 'Edwin Kofler'
 date = 2020-03-26T14:07:45-07:00
 categories = ['linux']
 tags = ['linux', 'network', "dhcp", "dns"]
+url = '/posts/fixing-my-internal-network'
 +++
 
 Somewhat recently, I finalized the purchase of some computers and computer parts on Craigslist. I was able to bargain for some cheap discounts - and I wanted to plug these computers into my network. Little did I know that I would be in for a wild ride...
@@ -12,7 +13,7 @@ At the time, my LAN did not consist of much: just an old (but still great!) MacB
 
 When it came to hooking up the new computers to my switch and router, I had no choice to unplug and rearrange _all_ my computers (space is pretty tight in a college dorm room). I had to get creative and hang my router from some hangers...
 
-![Photograph of computer setup](./setup.jpg)
+![Photograph of computer setup](/posts/2020/fixing-internal-network/setup.jpg)
 
 So I plugged in everything, and turned all the machines on all at once. Of course, several problems popped up. At the time, I only saw _one_ problem, which eventually caused me to misdiagnose some problems down the line.
 

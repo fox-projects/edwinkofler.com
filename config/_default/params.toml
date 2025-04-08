@@ -1,0 +1,5 @@
+enable_math = true
+color_scheme = "light"
+navbar_title = "Edwin Kofler's Site"
+footer = "Copyright © 2025 by Edwin Kofler"
+author = 'Edwin Kofler'

@@ -4,6 +4,7 @@ author = 'Edwin Kofler'
 date = 2022-08-19T11:52:21-07:00
 categories = ['hotkeys']
 tags = ['user-interface']
+url = '/posts/semantic-hotkeys'
 +++
 
 Hotkeys are present in nearly all software. However, in my view, both software users and application developers do not realize the full potential of hotkeys.
