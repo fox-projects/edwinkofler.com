@@ -1,0 +1,14 @@
+<main>
+	<div class="markdown-body">
+		<h1>Posts</h1>
+	</div>
+	<br>
+	<div>
+		{{#each Page.parameters.posts}}
+		<div class="post-entry">
+			<a href="/posts/{{this.slug}}/"><h3>{{this.frontmatter.title}}</h3></a>
+			<h4>{{this.dateNice}}</h4>
+		</div>
+		{{/each}}
+	</div>
+</main>

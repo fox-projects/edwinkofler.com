@@ -4,7 +4,6 @@ author = 'Edwin Kofler'
 date = 2019-06-17T00:47:57-07:00
 categories = ['web']
 tags = ['reflection', 'frontend']
-url = '/posts/2019/web-development-years-reflection'
 +++
 
 So I was reintroduced to programming during the fall of 2017. I was learning Java in my AP Computer Science A class. The class was another one of those "college-level" "advanced placement" (AP) classes, which actually became really fun near the end.
@@ -25,7 +24,7 @@ My first project idea consisted of a desktop app that would help students create
 
 This idea motivated me to work on some preliminary sketches of the application.
 
-![Mockup of Sigag](/posts/2019/web-development-years-reflection/sigag-mockup.png)
+![Mockup of Sigag](./sigag-mockup.png)
 
 Pretty cool, huh? The sketches focused more on the menu navigation rather then the actual flashcard set. I guess it's somewhat silly brainstorming a project substantially more complex than my [previous project](https://github.com/hyperupcall/word-finder), but I really think it helped motivate me.
 
@@ -37,7 +36,7 @@ Everything was super foreign to me because I didn't know JavaScript. I didn't ev
 
 After a some time, I was able to create a [lame sidebar menu](https://github.com/hyperupcall/Baeuda/tree/a05e8ee7c62ea0b44e6a29af07b723c463fd6485). Huzzah!
 
-![sigag-ui-development](/posts/2019/web-development-years-reflection/baeuda-development.png)
+![sigag-ui-development](./baeuda-development.png)
 
 After I made the lame sidebar, I realized that I needed to learn more before taking on this huge "flashcard project". Since building the sidebar wasn't exactly easy, I knew that I would need more experience before continuing with the project. _D'oh!_
 
@@ -51,7 +50,7 @@ I called this smaller project [sigag](https://github.com/hyperupcall/sigag). Sta
 
 From _sigag_, I learned how to create better user interfaces.
 
-![sigag-ui-development](/posts/2019/web-development-years-reflection/sigag-ui-development.png)
+![sigag-ui-development](./sigag-ui-development.png)
 
 It seemed that something finally clicked after the third or fourth iteration. It can definitely look better, but I think that most people will agree the last image is not complete garbage.
 
@@ -86,13 +85,13 @@ About a month later I kept on adding to that HTML file until it grew to a near 1
 
 I'm not even joking, I think I almost died.
 
-![commit history showing integration of webpack into project](/posts/2019/web-development-years-reflection/webpack-babel-combo.png)
+![commit history showing integration of webpack into project](./webpack-babel-combo.png)
 
 I don't even remember how many times I tried to get Webpack to work. I'm laughing (and dying) a bit inside just thinking about what was going on during that week. I had near-daily commits since May 30, and that week or so of "nothing" was me just trying to get Webpack to work. (that `00a20dd` commit was probably me starting from scratch again). I remember not being sure if I should even add Webpack and Babel at the same time.
 
 The final Webpack config looked like this
 
-![webpack config](/posts/2019/web-development-years-reflection/first-webpack-config.png)
+![webpack config](./first-webpack-config.png)
 
 It's deceivingly simple, just because that one's correct. I wish I could see all my failed attempts :joy:
 
@@ -113,7 +112,7 @@ It was around this time I became sort of close to burning out. You see, when sch
 When fall was around the corner, I realized that I couldn't finish the website before the start of school. However, I still wanted to release my application as a birthday present (early November). I ended up pushing a half-baked application to production that didn't really work. It didn't even have any data.
 
 It basically looked something like this
-![periodic table later revision](/posts/2019/web-development-years-reflection/periodic-table-later-design.png)
+![periodic table later revision](./periodic-table-later-design.png)
 
 All the styling is _kinda_ sexy, but I just wasn't sure how to store and manipulate the atomic data in a way which would be maintainable. Now that I reflect, I was thinking too hard about it. Since I had no experience building any other website, it was ridiculous that I thought so much about it instead of _just building it_.
 
@@ -127,11 +126,11 @@ When I switched to a brand new codebase (version 2), my productivity dropped sig
 
 _Version 1_
 
-![commits](/posts/2019/web-development-years-reflection/periodic-table-v1-commits.png)
+![commits](./periodic-table-v1-commits.png)
 
 _Version 2_
 
-![commits](/posts/2019/web-development-years-reflection/periodic-table-v2-commits.png)
+![commits](./periodic-table-v2-commits.png)
 
 There was actually a few months of inactivity between my concluding work on version 1 and my preliminary work on version 2. Version 2 was a complete rewrite; you might wonder if there were other reasons from rewriting it - apart from the release of Vue Cli 3.
 

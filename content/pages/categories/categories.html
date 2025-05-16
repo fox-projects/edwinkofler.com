@@ -1,0 +1,8 @@
+<main>
+	<h1>Categories</h1>
+	<ul>
+		{{#each Page.parameters.categories}}
+		<li><a href="/category/{{this}}/">{{this}}</a></li>
+		{{/each}}
+	</ul>
+</main>

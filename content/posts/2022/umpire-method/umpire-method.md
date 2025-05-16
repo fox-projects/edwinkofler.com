@@ -4,7 +4,6 @@ author = 'Edwin Kofler'
 date = 2022-09-24T00:00:00-00:00
 categories = []
 tags = ['problem-solving', 'framework']
-url = '/posts/umpire-method'
 +++
 
 

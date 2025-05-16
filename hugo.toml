@@ -1,6 +1,0 @@
-baseURL = 'https://edwinkofler.com'
-languageCode = 'en-us'
-title = 'Edwin Kofler'
-theme = "hugo-theme-monochrome"
-enableEmoji = true
-publishDir = './build'
