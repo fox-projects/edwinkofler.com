@@ -1,5 +1,3 @@
 export function Head() {
-	return {
-		content: `<link rel="stylesheet" href="/index.css" />`,
-	}
+	return `<link rel="stylesheet" href="/index.css" />`
 }

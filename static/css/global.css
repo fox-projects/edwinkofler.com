@@ -14,6 +14,8 @@
 
 html {
 	height: 100%;
+	/* This prevents KaTeX from automatically adding scrollbars. */
+	overflow: hidden;
 }
 
 body {
@@ -29,12 +31,20 @@ body {
 	gap: 12px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: 'IBM Plex Sans', sans-serif;
 }
 
-
-tt, code, samp, pre, kbd {
+tt,
+code,
+samp,
+pre,
+kbd {
 	font-family: 'PT Mono', monospace;
 	font-optical-sizing: auto;
 	font-weight: 300;
@@ -47,7 +57,7 @@ tt, code, samp, pre, kbd {
 }
 
 pre {
-	border: 1px solid var(--text-color-light)
+	border: 1px solid var(--text-color-light);
 }
 
 a {
@@ -145,17 +155,11 @@ a:hover {
 }
 
 .Content {
-	height: 100%;
-	padding-block-start: 10px;
 	overflow: auto;
+}
 
-	& .markdown-body {
-		max-width: 800px;
-	}
-
-	& main {
-		padding-inline: 10px;
-	}
+.markdown-body {
+	max-width: 1000px;
 }
 
 @media (max-width: 800px) {
@@ -218,14 +222,14 @@ a:hover {
 	}
 }
 
-@media (max-height: 750px) {
+@media (max-height: 525px) {
 	.Header .links {
 		display: none;
 	}
 }
 
-@media (max-height: 650px) {
+@media (max-height: 600px) {
 	.Header {
-		line-height: 120%;
+		line-height: 150%;
 	}
 }

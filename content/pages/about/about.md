@@ -17,7 +17,7 @@ Software-wise, I'm focusing on writing a personal software solution for knowledg
 
 ## Colophon
 
-This website was created with my own static site generator, [ten](https://github.com/fox-incubating/ten). I chose to build my own solution because I wanted full control over the build process and I wanted my code to last (over decades).
+This website was created with my own static site generator, [sauerkraut](https://github.com/hyperupcall-experiments/sauerkraut). I chose to build my own solution because I wanted full control over the build process and I wanted my code to last (over decades).
 
 The documents and files for this website can be found at [fox-projects/edwinkofler.com](https://github.com/fox-projects/edwinkofler.com).
 

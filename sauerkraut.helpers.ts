@@ -1,7 +1,8 @@
 import path from 'node:path'
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import TOML from 'smol-toml'
 import type { Config, Options } from 'sauerkraut'
+import { transformUri } from './sauerkraut.config.ts'
 
 export async function getPosts({
 	config,
@@ -37,7 +38,7 @@ export async function getPosts({
 					),
 				}
 			})()
-			const slug = path.basename(path.dirname(transformUri(inputFile)))
+			const slug = path.basename(path.dirname(transformUri(config, inputFile)))
 			const date = new Date(frontmatter.date.toISOString())
 			const dateNice = `${date.getUTCFullYear()}.${date.getUTCMonth()}.${date.getUTCDay()}`
 			posts.push({ uri: `${year}/${post}`, frontmatter, slug, dateNice })

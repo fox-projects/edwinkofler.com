@@ -1,8 +1,8 @@
-name: "Deploy to GitHub pages"
+name: 'Deploy to GitHub pages'
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -14,7 +14,7 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
@@ -30,11 +30,11 @@ jobs:
         with:
           node-version: 23
       - run: 'npm install'
-      - run: './node_modules/.bin/ten build'
+      - run: './node_modules/.bin/sauerkraut build'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./build"
+          path: './build'
 
   # Deployment job
   deploy:

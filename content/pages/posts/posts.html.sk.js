@@ -1,11 +1,7 @@
 import { getPosts } from '#helpers'
 
 export function Head() {
-	return {
-		content: `
-			<link rel="stylesheet" href="./posts.css" />
-		`,
-	}
+	return `<link rel="stylesheet" href="./posts.css" />`
 }
 
 export async function GenerateTemplateVariables({ config, options }) {
