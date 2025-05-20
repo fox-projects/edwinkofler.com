@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       sauerkraut:
-        specifier: ^0.5.0
-        version: 0.5.0(solid-js@1.9.7)(typescript@5.6.3)
+        specifier: ^0.5.1
+        version: 0.5.1(solid-js@1.9.7)(typescript@5.6.3)
       smol-toml:
         specifier: ^1.3.4
         version: 1.3.4
@@ -3124,8 +3124,8 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sauerkraut@0.5.0:
-    resolution: {integrity: sha512-Sgr9hx2hiGGtW1L++KFef5WGB1iN77r4RnhaUktFxTW2XNZd/CqhwdTCVTF7Bd05Ax6mrlwoOD0zcE8XRcaJ8g==}
+  sauerkraut@0.5.1:
+    resolution: {integrity: sha512-0p/rIYfvUsdMRNsSOIYv+5ObLJiY7rEFWFA48fK76JQW6I1XT3ETNC/v99lShFgV7Ee9FEUqpet78jULt+2mZw==}
     hasBin: true
 
   scheduler@0.23.2:
@@ -7341,7 +7341,7 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sauerkraut@0.5.0(solid-js@1.9.7)(typescript@5.6.3):
+  sauerkraut@0.5.1(solid-js@1.9.7)(typescript@5.6.3):
     dependencies:
       '@markwhen/calendar': 1.3.5
       '@markwhen/parser': 0.12.6
