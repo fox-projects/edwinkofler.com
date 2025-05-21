@@ -160,6 +160,7 @@ a:hover {
 
 .markdown-body {
 	max-width: 1000px;
+	margin: 12px;
 }
 
 @media (max-width: 800px) {

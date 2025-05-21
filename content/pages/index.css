@@ -14,7 +14,7 @@
 }
 
 .projects-title {
-	font-size: 32px;
+	font-size: 32px !important;
 }
 
 .projects {
@@ -41,7 +41,7 @@
 	border-radius: 10px;
 	background-color: var(--oc-grape-1);
 	position: relative;
-	max-width: 600px;
+	max-width: 630px;
 	box-shadow:
 		2px 2px 6px 2px #dee2e6,
 		4px 4px 5px 6px #f1f3f5;

@@ -10,7 +10,6 @@ export function createHead(config: Config, layoutData, LayoutData) {
 	return html`<link rel="stylesheet" href="/css/open-color.css" />
 		<link rel="stylesheet" href="/css/fonts.css" />
 		<link rel="stylesheet" href="/css/global.css" />
-		<link rel="stylesheet" href="/css/katex.css" />
 		<link rel="stylesheet" href="/css/github-markdown-light-v5.7.0-modified.css" />
 		<script
 			data-goatcounter="https://edwinkofler-com.goatcounter.com/count"
@@ -75,7 +74,7 @@ export function createContent(config: Config, layoutData: LayoutData) {
 		<body>
 			${layoutData.inputFileType === 'markdown'
 				? html`<div class="Content">
-						<main class="markdown-body" style="margin: 12px;">
+						<main class="markdown-body markdown-latex">
 							<h1>${layoutData.title}</h1>
 							${layoutData.body}
 						</main>
@@ -91,6 +90,25 @@ export function transformUri(config: Config, uri: string) {
 		uri = uri.replace(/^posts\/(?:.*?\/)?/g, 'posts/')
 	}
 
+	// drafts
+	uri = uri.replaceAll('/development-philosophy', '/my-development-philosophy')
+
+	// 2022
+	uri = uri.replaceAll('/expect-terminal-automation', '/terminal-automation-with-expect')
+
+	// 2020
+	uri = uri.replaceAll('/fixing-internal-network', '/fixing-my-internal-network')
+	uri = uri.replaceAll(
+		'/fiddling-ubuntu-server-images',
+		'/fiddling-with-ubuntu-server-images',
+	)
+
+	// 2019
+	uri = uri.replaceAll(
+		'/web-development-years-reflection',
+		'/front-end-web-dev-a-years-reflection',
+	)
+
 	// 2018
 	uri = uri.replaceAll(
 		'/hugo-render-latex-with-katex',
@@ -104,25 +122,6 @@ export function transformUri(config: Config, uri: string) {
 		'/fibonacci-pascal-equation-part-2',
 		'/fibonacci-equation-using-pascals-triangle-part-2',
 	)
-
-	// 2019
-	uri = uri.replaceAll(
-		'/web-development-years-reflection',
-		'/front-end-web-dev-a-years-reflection',
-	)
-
-	// 2020
-	uri = uri.replaceAll('/fixing-internal-network', '/fixing-my-internal-network')
-	uri = uri.replaceAll(
-		'/fiddling-ubuntu-server-images',
-		'/fiddling-with-ubuntu-server-images',
-	)
-
-	// 2022
-	uri = uri.replaceAll('/expect-terminal-automation', '/terminal-automation-with-expect')
-
-	// drafts
-	uri = uri.replaceAll('/development-philosophy', '/my-development-philosophy')
 
 	return uri
 }

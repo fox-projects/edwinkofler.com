@@ -28,9 +28,9 @@ jobs:
         uses: 'actions/configure-pages@v5'
       - uses: 'actions/setup-node@v4'
         with:
-          node-version: 23
+          node-version: 24
       - run: 'npm install'
-      - run: './node_modules/.bin/sauerkraut build'
+      - run: './node_modules/.bin/sauerkraut.ts build'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

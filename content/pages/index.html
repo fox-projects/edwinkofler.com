@@ -11,8 +11,32 @@
 				<a href="https://github.com/hyperupcall">GitHub profile</a> lists more projects.
 			</p>
 		</section>
-		<h2 class="projects-title">Featured Projects</h2>
+		<div class="markdown-body">
+			<h2 class="projects-title">Featured Projects</h2>
+		</div>
 		<div class="projects">
+			<article class="project">
+				<h3><a href="https://github.com/schemastore/SchemaStore">SchemaStore</a></h3>
+				<p>
+					When editing configuration files like <code>.prettierrc</code> or
+					<code>.clang-format</code>, IDEs typically implement autocompletion and
+					validation by fetching and evaluating
+					<a href="https://json-schema.org/">JSON Schemas</a> from
+					<a href="https://www.schemastore.org/json/">schemastore.org</a>. I'm responsible
+					for reviewing and merging pull requests that modify schemas, so that website
+					consumers (who collectivelly download 2 terrabytes per day) don't download
+					malformed or incorrect schemas.
+				</p>
+			</article>
+			<article class="project">
+				<h3><a href="https://github.com/hyperupcall/autoenv">autoenv</a></h3>
+				<p>
+					I currently maintain autoenv, a solution for creating directory-based shell
+					environments. This project is used by thousands to ensure that certain shell
+					scripts are evaluated, depending on which directories are <code>cd</code>'d to
+					in a (typically interactive) shell session.
+				</p>
+			</article>
 			<article class="project">
 				<h3><a href="https://github.com/version-manager/woof">Woof</a></h3>
 				<p>
@@ -31,18 +55,6 @@
 				</p>
 			</article>
 			<article class="project">
-				<h3><a href="https://github.com/schemastore/SchemaStore">SchemaStore</a></h3>
-				<p>
-					When editing configuration files like <code>.prettierrc</code> or
-					<code>.clang-format</code>, IDEs typically implement autocompletion and
-					validation by fetching and evaluating
-					<a href="https://json-schema.org/">JSON Schemas</a> from schemastore.org. I'm
-					responsible for reviewing and merging pull requests that modify schemas, so that
-					website consumers (who collectivelly download 1,500 gigabytes per day) don't
-					download malformed or incorrect schemas.
-				</p>
-			</article>
-			<article class="project">
 				<h3><a href="https://github.com/bash-bastion/basalt">Basalt</a></h3>
 				<p>
 					A fully-featured package manager for Bash. I gave a lightning talk for it at
@@ -53,15 +65,6 @@
 					<a href="https://github.com/hyperupcall/bash-object">bash-object</a>
 					(nested data structures in Bash). See the full ecosystem
 					<a href="https://github.com/hyperupcall/awesome-basalt">here</a>.
-				</p>
-			</article>
-			<article class="project">
-				<h3><a href="https://github.com/hyperupcall/autoenv">autoenv</a></h3>
-				<p>
-					I currently maintain autoenv, a solution for creating directory-based shell
-					environments. This project is used by thousands to ensure that certain shell
-					scripts are evaluated, depending on which directories are <code>cd</code>'d to
-					in a (typically interactive) shell session.
 				</p>
 			</article>
 		</div>
