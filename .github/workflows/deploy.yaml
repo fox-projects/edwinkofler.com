@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: 24
       - run: 'npm install'
-      - run: './node_modules/.bin/sauerkraut.ts build'
+      - run: './node_modules/.bin/sauerkraut build'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
