@@ -1,0 +1,16 @@
+<div class="Content">
+	<main style="margin: 12px">
+		<div class="markdown-body">
+			<h1>Notes</h1>
+		</div>
+		<br />
+		<div>
+			{{#each Page.parameters.notes}}
+			<div class="post-entry">
+				<a href="/notes/{{this.slug}}/"><h3>{{this.frontmatter.title}}</h3></a>
+				<h4>{{this.dateNice}}</h4>
+			</div>
+			{{/each}}
+		</div>
+	</main>
+</div>

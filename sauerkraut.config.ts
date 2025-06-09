@@ -35,7 +35,8 @@ export function createContent(config: Config, layoutData: LayoutData) {
 					<a href="/">Home</a>
 					<a href="/about/">About</a>
 					<a href="/links/">Links</a>
-					<a href="/posts/">Blog</a>
+					<a href="/posts/">Posts</a>
+					<a href="/notes/">Notes</a>
 				</nav>
 				<div class="links">
 					<div class="link">
@@ -88,6 +89,9 @@ export function transformUri(config: Config, uri: string) {
 		uri = uri.replace(/^pages\//, '')
 	} else if (uri.startsWith('posts/')) {
 		uri = uri.replace(/^posts\/(?:.*?\/)?/g, 'posts/')
+	} else if (uri.startsWith('notes/')) {
+		uri = uri.replace(/^notes\/(?:.*?\/)?/g, 'notes/')
+		uri = uri.replace(/^notes\/(.*?)\.md/g, 'notes/$1/index.html')
 	}
 
 	// drafts
@@ -133,7 +137,7 @@ export function validateFrontmatter(
 ) {
 	const uri = path.relative(config.contentDir, inputFile)
 
-	if (uri.startsWith('posts/')) {
+	if (uri.startsWith('posts/') || uri.startsWith('posts/')) {
 		for (const requiredProperty of ['title', 'author', 'date']) {
 			if (!(requiredProperty in frontmatter)) {
 				throw new Error(
